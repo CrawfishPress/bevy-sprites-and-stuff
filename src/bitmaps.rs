@@ -20,6 +20,17 @@ impl fmt::Display for OneBackground {
     }
 }
 
+// Adding a cycler-function (see lessons.md), so I don't have to say things like:
+// if map1, set target to map2 else set target to map1...
+impl OneBackground {
+    fn toggle(&self) -> Self {
+        match *self {
+            OneBackground::Map1 => OneBackground::Map2,
+            OneBackground::Map2 => OneBackground::Map1,
+        }
+    }
+}
+
 // There should only be one Sprite with this marker, or all hell might break loose.
 #[derive(Component)]
 pub struct IsBackground;
@@ -27,17 +38,6 @@ pub struct IsBackground;
 // Resource
 pub struct BackgroundMap {
     pub cur_map: OneBackground,
-}
-
-pub fn add_background(commands: &mut Commands, asset_server: &Res<AssetServer>, some_bitmap: &str)
-{
-    commands  // Background Map
-        .spawn_bundle(SpriteBundle {
-            transform: Transform::from_xyz(0.0, 0.0, 0.0),
-            texture: asset_server.load(some_bitmap),
-            ..default()
-        })
-        .insert(IsBackground);
 }
 
 /*
@@ -54,7 +54,7 @@ pub fn do_background_swap(mut commands: Commands,
                           keyboard_input: Res<Input<KeyCode>>,
                           mut cur_backmap: ResMut<BackgroundMap>,
                           mut sprite_map_qry: Query<Entity, With<IsBackground>>,
-){
+) {
     if keyboard_input.just_pressed(KeyCode::Space) {
         if ! sprite_map_qry.is_empty() {
             let entity_id = sprite_map_qry.get_single_mut().unwrap();  // Gosh, I sure hope there's only one.
@@ -63,12 +63,19 @@ pub fn do_background_swap(mut commands: Commands,
             return;
         }
 
-        if cur_backmap.cur_map == OneBackground::Map1 {
-            cur_backmap.cur_map = OneBackground::Map2;
-        } else {
-            cur_backmap.cur_map = OneBackground::Map1;
-        }
-        // println!("Background empty? wow... Adding background: [{}]", cur_backmap.cur_map);
-        add_background(&mut commands, &asset_server, &*cur_backmap.cur_map.to_string());
+        cur_backmap.cur_map = cur_backmap.cur_map.toggle();
+        add_background(&mut commands, &asset_server, cur_backmap.cur_map);
     }
+}
+
+pub fn add_background(commands: &mut Commands, asset_server: &Res<AssetServer>, some_bitmap: OneBackground)
+{
+    let background_string = &*some_bitmap.to_string();
+    commands  // Background Map
+        .spawn_bundle(SpriteBundle {
+            transform: Transform::from_xyz(0.0, 0.0, 0.0),
+            texture: asset_server.load(background_string),
+            ..default()
+        })
+        .insert(IsBackground);
 }

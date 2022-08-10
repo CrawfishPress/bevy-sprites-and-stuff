@@ -66,7 +66,7 @@ fn setup_sprites(mut commands: Commands,
         .spawn_bundle(Camera2dBundle::default())
         .insert(MainCamera);
 
-    add_background(&mut commands, &asset_server, &*OneBackground::Map1.to_string());
+    add_background(&mut commands, &asset_server, OneBackground::Map1);
 
     commands // Center Pixel
         .spawn_bundle(MaterialMesh2dBundle {

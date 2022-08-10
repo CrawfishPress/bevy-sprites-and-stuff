@@ -41,3 +41,7 @@ Although I gave those sprites a left-dir and right-dir marker - they can be move
 the left Sprite *could* be on the right of the right Sprite. Therefore, the crab-Sprite itself,
 needed a marker of what direction it was going. Fortunately, I already had one, sort of -
 it was up/down/left/right, from a time when it could move in four direction. But it was a start.
+
+### Cool Enum Tricks
+
+https://stackoverflow.com/questions/25867875/how-do-i-toggle-through-enum-variants
