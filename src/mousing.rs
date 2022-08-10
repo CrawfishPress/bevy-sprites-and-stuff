@@ -39,6 +39,7 @@ check_cursor_for_drag(): when the LMB is pressed, does:
  - gets any Draggable Sprites
  - checks if the adjusted mouse-coordinates are more-or-less on top of a Sprite
    - while the mouse is moving, update the Sprite coordinates to follow the mouse
+ - when LMB released, clears all Draggable Sprites
 */
 pub fn check_cursor_for_drag(
     windows: Res<Windows>,
@@ -47,6 +48,13 @@ pub fn check_cursor_for_drag(
     my_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
     mut any_hovercraft: Query<(Entity, &HoverCraft, &mut IsMousing, &mut Transform)>,
 ) {
+    if mouse_button_input.just_released(MouseButton::Left) {
+        // println!("*** LMB was just released! Clear all Hovercraft!");
+        for (_, _, mut mouse_action, _) in  any_hovercraft.iter_mut() {
+            mouse_action.is_dragging = false;
+        }
+        return;
+    }
 
     if ! mouse_button_input.pressed(MouseButton::Left) {
         // println!("*** LMB is NOT being held down. We're done here.");
@@ -57,7 +65,7 @@ pub fn check_cursor_for_drag(
     // get the camera info and transform
     // assuming there is exactly one main camera entity, so query::single() is OK
     let (camera, camera_transform) = my_camera.single();
-    let some_window = windows.get_primary().unwrap();  // Here's hoping there's always a camera...
+    let some_window = windows.get_primary().unwrap();  // Here's hoping there's always a window...
 
     // get the window that the camera is displaying to (or the primary window)
     // Should always be at least one camera on this window, but hey, who knows?
@@ -73,31 +81,32 @@ pub fn check_cursor_for_drag(
         return;
     }
     let camera_pos = maybe_camera_pos.unwrap();
-    // println!("*** camera_pos: {}", camera_pos);
-
     drag_some_sprite(camera_pos, &mut drag_points, &mut any_hovercraft);
 }
 
 /*
 drag_some_sprite(): when LMB is held down,
  - checks all Hovercraft-type Sprites for mouse-coordinates over them
- - for any Sprite with mouse over it:
+ - for any Sprite with either (mouse over it), or `is_dragging` flag set:
    - set the Sprite's coordinates to match the mouse (dragging it)
    - copy the Sprite's coordinates to a DragPoint Resource, for use by other sprites
+ The `is_dragging` flag is checked, because the mouse can "out-run" the sprite, or get
+ outside of its bounding-box faster than the sprite can move. I want the sprite to keep
+ dragging, until the LMB is released.
 */
+// TODO: currently only one sprite at a time can be dragged, don't need the loop any more, could remove it.
+// TODO: correction - only one sprite *should* be dragged... If you mouse-drag one over the other, well...
 fn drag_some_sprite(camera_pos: Vec2,
                     drag_points: &mut ResMut<DragPoint>,
                     any_hovercraft: &mut Query<(Entity, &HoverCraft, &mut IsMousing, &mut Transform)>,
 ) {
-    // print!("got a hovercraft? Wow. it's typeof: ");  print_type_of(&any_hovercraft); println!();
-    for (_entity_id, hover_side, hovering, mut some_pos) in  any_hovercraft.iter_mut() {
-        //println!("\tentity {:?}, size = ?, pos = {:?}", entity_id, some_pos.translation);
-        //println!("\t\tmouse position: {:?}", camera_pos);println!();
-        if hovering.is_dragging == false {continue;}
+    for (_entity_id, hover_side, mut hovering, mut some_sprite_pos) in any_hovercraft.iter_mut() {
+        if (check_mouse_over_sprite(&some_sprite_pos, camera_pos) == true) ||
+           (hovering.is_dragging == true)
+        {
+            hovering.is_dragging = true;
+            some_sprite_pos.translation = camera_pos.extend(some_sprite_pos.translation.z); // Upscaling Vec2 to Vec3
 
-        if check_mouse_over_sprite(&some_pos, camera_pos) == true {
-            some_pos.translation.x = camera_pos.x;
-            some_pos.translation.y = camera_pos.y;
             match hover_side {
                 HoverCraft::LeftPoint => {
                     drag_points.left_point = camera_pos;

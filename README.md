@@ -10,8 +10,9 @@ basic techniques and concepts. Such as...
  - mouse/keyboard inputs
    - spacebar pauses game/changes background
    - moving sprites via the arrow-keys
-   - mouse-dragging a sprite, mostly working
+   - mouse-dragging a sprite
  - assorted ECS concepts
+ - assorted Query usage
  - assorted Rust concepts
  - lerping, whatever that means
 
@@ -19,9 +20,9 @@ Nothing especially profound, just things that I have done as part of
 learning Bevy, while moving towards making an actual game with it.
 
 ### TODO
- - currently, the mouse can out-run the sprite, worth fixing?
- - maybe make the water-part of the beach, translucent?
  - add a rotation to the Crab, now that it's not just moving on the X-axis
+ - maybe make the water-part of the beach, translucent?
+ - do something with the Rectangle - maybe have it smush the crab? Nahhh...
 
 ### Requirements
  - Rust 1.60+

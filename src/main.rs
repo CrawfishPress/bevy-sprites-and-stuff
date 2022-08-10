@@ -41,7 +41,7 @@ fn main() {
         .add_startup_system(setup_hovercraft)
         .add_system(bevy::window::close_on_esc)
 
-        .add_system(do_sprite_movement)
+        .add_system(do_sprite_auto_move)
         .add_system(do_sprite_move_check)
         .add_system(do_movement_input)
         .add_system(do_spacebar_input)
@@ -114,7 +114,7 @@ fn setup_hovercraft(mut commands: Commands,
             ..default()
         })
         .insert(HoverCraft::LeftPoint)
-        .insert(IsMousing { is_dragging: true});
+        .insert(IsMousing { is_dragging: false});
 
     commands // Hexagon
         .spawn_bundle(MaterialMesh2dBundle {
@@ -123,6 +123,6 @@ fn setup_hovercraft(mut commands: Commands,
             material: materials.add(ColorMaterial::from(Color::BISQUE)),
             ..default()})
         .insert(HoverCraft::RightPoint)
-        .insert(IsMousing { is_dragging: true});
+        .insert(IsMousing { is_dragging: false});
 
 }

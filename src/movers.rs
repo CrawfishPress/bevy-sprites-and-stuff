@@ -33,26 +33,25 @@ distance to target, as the sprite gets closer and closer, so it moves less), whe
 moving between A/B (by adding X pixels), was a constant speed the whole way. I may want
 to rethink the lerp. OTOH, it does sort of look crab-like...
 */
-pub fn do_sprite_movement(drag_points: Res<DragPoint>,
-                          move_active: Res<SpritesMovable>,
-                          mut sprite_query: Query<(&mut Transform,
+pub fn do_sprite_auto_move(drag_points: Res<DragPoint>,
+                           move_active: Res<SpritesMovable>,
+                           mut sprite_query: Query<(&mut Transform,
                                                 &mut CrabDirection,)>,
 ) {
-    if !move_active.is_active {return;}  // Spacebar pauses movement
+    if !move_active.is_active { return; }  // Spacebar pauses movement
 
     // TODO: there's now only one auto-moving sprite, the Crab - I could change these loops to single.
     for (mut sprite_pos, moving_dir) in &mut sprite_query {
         let target_pos;  // Why is this here? Because when I put it inside the match(), it goes out of scope!
-        let sprite_vec2 = Vec2 { x: sprite_pos.translation.x, y: sprite_pos.translation.y };
 
         match *moving_dir {
             CrabDirection::Left => target_pos = drag_points.left_point,
             CrabDirection::Right => target_pos = drag_points.right_point,
         }
 
+        let sprite_vec2 = sprite_pos.translation.truncate();
         let lerp_to_target = sprite_vec2.lerp(target_pos, 0.02);
-        sprite_pos.translation.x = lerp_to_target.x;
-        sprite_pos.translation.y = lerp_to_target.y;
+        sprite_pos.translation = lerp_to_target.extend(sprite_pos.translation.z); // Upscale a Vec2 to Vec3
     }
 }
 
@@ -69,7 +68,7 @@ pub fn do_sprite_move_check(drag_points: Res<DragPoint>,
                                                      Option<&mut TextureAtlasSprite>)>,
 ) {
     for (sprite_pos, mut moving_dir, tas) in &mut sprite_position {
-        let sprite_vec2 = Vec2 { x: sprite_pos.translation.x, y: sprite_pos.translation.y };
+        let sprite_vec2 = sprite_pos.translation.truncate();
 
         match *moving_dir {
             CrabDirection::Left => {
@@ -95,8 +94,9 @@ pub fn do_movement_input(keyboard_input: Res<Input<KeyCode>>,
                          mut tunnel_pos: Query<(&mut Transform,
                                                 &mut KeyMover)>,
 ) {
-    if !move_active.is_active {return;}
-    // println!("*** keys pressed: {:?}", keyboard_input);
+    if !move_active.is_active { return; }
+
+    // TODO: for some reason, LControl not being picked up - is Linux eating it?
     if keyboard_input.any_pressed([KeyCode::LControl, KeyCode::RControl, KeyCode::LAlt, KeyCode::RAlt]) {
         println!("*** keys pressed: {:?}", keyboard_input);
         return;}
