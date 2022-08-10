@@ -3,18 +3,20 @@ This is basically experimentation with the Bevy game-engine, using a variety of
 basic techniques and concepts.
 */
 
-use bevy::{prelude::*, window::WindowMode, sprite::MaterialMesh2dBundle};
+use bevy::{prelude::*, window::WindowMode, sprite::MaterialMesh2dBundle, winit::WinitSettings};
 use bevy::ecs::prelude::{Commands, Res};
 
 mod bitmaps;
 mod movers;
 mod mousing;
 mod data;
+mod gui;
 
 use bitmaps::*;
 use movers::*;
 use mousing::*;
 use data::*;
+use gui::*;
 
 fn main() {
     App::new()
@@ -30,6 +32,7 @@ fn main() {
             ..default()
         })
         .insert_resource(ClearColor(BACKGROUND))
+        .insert_resource(WinitSettings::game())
         .add_plugins(DefaultPlugins)
 
         .insert_resource(SpritesMovable { is_active: true })
@@ -37,9 +40,11 @@ fn main() {
         // TODO: move these coords out - note the Hovercraft also use them
         .insert_resource(DragPoint { left_point: Vec2 { x: -300.0, y: -200.0 }, right_point: Vec2 { x: 500.0, y: -200.0 }})
 
+        .add_startup_system(button_setup)
         .add_startup_system(setup_sprites)
         .add_startup_system(setup_hovercraft)
         .add_system(bevy::window::close_on_esc)
+        .add_system(button_system)
 
         .add_system(do_sprite_auto_move)
         .add_system(do_sprite_move_check)
