@@ -118,14 +118,6 @@ pub fn do_movement_input(keyboard_input: Res<Input<KeyCode>>,
     }
 }
 
-pub fn do_spacebar_input(keyboard_input: Res<Input<KeyCode>>,
-                         mut move_active: ResMut<SpritesMovable>,)
-{
-    if keyboard_input.just_pressed(KeyCode::Space) {
-        move_active.is_active = !move_active.is_active;
-    }
-}
-
 /*
 From the cheat-book, a way of listing all of the Resources that
 Bevy adds, based on Plugins used. Runs stand-alone.

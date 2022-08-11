@@ -11,6 +11,12 @@ basic techniques and concepts. Such as...
    - spacebar pauses game/changes background
    - moving sprites via the arrow-keys
    - mouse-dragging a sprite
+ - EGUI usage integrated into Bevy systems
+   - creates a TopPanel
+   - creates a Frame, which modifies the panel's appearance
+   - puts assorted Widgets into the TopPanel, including
+     - a Button, that actually does something in-game
+     - a Slider, that... slides...
  - assorted ECS concepts
  - assorted Query usage
  - assorted Rust concepts

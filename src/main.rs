@@ -3,18 +3,23 @@ This is basically experimentation with the Bevy game-engine, using a variety of
 basic techniques and concepts.
 */
 
+#[allow(unused_imports)]
 use bevy::{prelude::*, window::WindowMode, sprite::MaterialMesh2dBundle, winit::WinitSettings};
 use bevy::ecs::prelude::{Commands, Res};
+#[allow(unused_imports)]
+use bevy_egui::{egui, EguiContext, EguiPlugin};
 
 mod bitmaps;
 mod movers;
 mod mousing;
 mod data;
+mod my_egui;
 
 use bitmaps::*;
 use movers::*;
 use mousing::*;
 use data::*;
+use my_egui::*;
 
 fn main() {
     App::new()
@@ -30,14 +35,18 @@ fn main() {
             ..default()
         })
         .insert_resource(ClearColor(BACKGROUND))
-        // .insert_resource(WinitSettings::game())
+        // .insert_resource(WinitSettings::game()) // Hmmm...
+        .insert_resource(GuiData { some_name: "".to_string(), my_value: 0, my_other_value: 0.0 })
         .add_plugins(DefaultPlugins)
+        .add_plugin(EguiPlugin)
 
         .insert_resource(SpritesMovable { is_active: true })
         .insert_resource(BackgroundMap { cur_map: OneBackground::Map1 })
         // TODO: move these coords out - note the Hovercraft also use them
         .insert_resource(DragPoint { left_point: Vec2 { x: -300.0, y: -200.0 }, right_point: Vec2 { x: 500.0, y: -200.0 }})
 
+        .add_system(do_ui_setup)
+        .add_system(do_ui_read)
         .add_startup_system(setup_sprites)
         .add_startup_system(setup_hovercraft)
         .add_system(bevy::window::close_on_esc)
@@ -45,7 +54,6 @@ fn main() {
         .add_system(do_sprite_auto_move)
         .add_system(do_sprite_move_check)
         .add_system(do_movement_input)
-        .add_system(do_spacebar_input)
         .add_system(do_background_swap)
         .add_system(check_cursor_for_drag)
         .run();

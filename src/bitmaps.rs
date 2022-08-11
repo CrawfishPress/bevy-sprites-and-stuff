@@ -41,13 +41,10 @@ pub struct BackgroundMap {
 }
 
 /*
-do_background_swap(): does two things, when spacebar is pressed:
-
- - queries for any active Map Sprite, and de-spawns it - this will make
-   the screen-background disappear (game is also paused on spacebar).
-
- - if no active Map Sprite, toggles the current BackgroundMap, then
-   spawns a new Sprite, with the current BackgroundMap.
+do_background_swap(): when spacebar is pressed:
+ - finds active Background-map sprite
+ - despawns it
+ - respawns the next Map in the Enum
 */
 pub fn do_background_swap(mut commands: Commands,
                           asset_server: Res<AssetServer>,
@@ -56,13 +53,14 @@ pub fn do_background_swap(mut commands: Commands,
                           mut sprite_map_qry: Query<Entity, With<IsBackground>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::Space) {
-        if ! sprite_map_qry.is_empty() {
-            let entity_id = sprite_map_qry.get_single_mut().unwrap();  // Gosh, I sure hope there's only one.
-            // println!("spacebar hit. removing background Sprite: {:?}", entity_id);
-            commands.entity(entity_id).despawn();
-            return;
-        }
+        // This should never happen - originally, there was another step, where there
+        // was no background-sprite, and the next spacebar refreshed to another map.
+        // I guess I could maybe just delete it, or something...
+        if sprite_map_qry.is_empty() { return; }
 
+        let entity_id = sprite_map_qry.get_single_mut().unwrap();  // Gosh, I sure hope there's only one.
+        // println!("spacebar hit. removing background Sprite: {:?}", entity_id);
+        commands.entity(entity_id).despawn();
         cur_backmap.cur_map = cur_backmap.cur_map.toggle();
         add_background(&mut commands, &asset_server, cur_backmap.cur_map);
     }
