@@ -45,3 +45,15 @@ it was up/down/left/right, from a time when it could move in four direction. But
 ### Cool Enum Tricks
 
 https://stackoverflow.com/questions/25867875/how-do-i-toggle-through-enum-variants
+
+### Gui stuff
+
+So it turns out
+
+    pub fn do_ui_setup(mut egui_context: ResMut<EguiContext>,
+        mut random_data: ResMut<GuiData>,) {
+        let age: i32 = 0; }
+
+doesn't work in Immediate-Mode. Wups. IM means every frame,
+the function refreshes the screen, and constructs the UI anew.
+Any data has to be stored somewhere else, like a Resource.

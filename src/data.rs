@@ -23,6 +23,7 @@ pub struct GuiData {
 }
 
 // Background stuff
+
 // Example of creating an Enum that maps to Strings (but *not* str)
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum OneBackground {
@@ -74,11 +75,6 @@ pub struct KeyMover {
     pub is_movable: bool
 }
 
-// Resource - basically pauses all sprite-movement
-pub struct SpritesMovable {
-    pub is_active: bool
-}
-
 // Resource
 #[derive(Debug)]
 pub struct DragPoint {
@@ -100,10 +96,45 @@ pub enum HoverCraft {
     LeftPoint,
     RightPoint,
 }
+
 #[derive(Component)]
 pub struct OneMover;
 
 #[derive(Component)]
 pub struct IsMousing {
     pub is_dragging: bool,
+}
+
+// General Game status-data
+
+// Resource
+pub struct GameData {
+    pub game_status: GameState,
+    pub is_paused: bool,
+}
+
+impl Default for GameData {
+    fn default() -> Self {
+        GameData {
+            game_status: GameState::Running,
+            is_paused: false,
+        }
+    }
+}
+
+// Cycled by a GUI Reset button
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum GameState {
+    Running,
+    Reset,
+}
+
+// Adding a cycler-function to simplify changing states
+impl GameState {
+    pub fn cycle(&self) -> Self {
+        match *self {
+            GameState::Running => GameState::Reset,
+            GameState::Reset => GameState::Running,
+        }
+    }
 }

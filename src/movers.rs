@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy::ecs::{archetype::Archetypes, component::Components};
-use crate::{CrabDirection, DragPoint, KeyMover, SpritesMovable};
+use crate::{CrabDirection, DragPoint, KeyMover, GameData};
 
 /*
 The first pass, this function moved the Sprite (crab) between points A and B. I decided
@@ -15,11 +15,11 @@ moving between A/B (by adding X pixels), was a constant speed the whole way. I m
 to rethink the lerp. OTOH, it does sort of look crab-like...
 */
 pub fn do_sprite_auto_move(drag_points: Res<DragPoint>,
-                           move_active: Res<SpritesMovable>,
+                           move_active: Res<GameData>,
                            mut sprite_query: Query<(&mut Transform,
                                                 &mut CrabDirection,)>,
 ) {
-    if !move_active.is_active { return; }  // Spacebar pauses movement
+    if move_active.is_paused { return; }  // Spacebar pauses movement
 
     // TODO: there's now only one auto-moving sprite, the Crab - I could change these loops to single.
     for (mut sprite_pos, moving_dir) in &mut sprite_query {
@@ -71,11 +71,11 @@ pub fn do_sprite_move_check(drag_points: Res<DragPoint>,
 }
 
 pub fn do_movement_input(keyboard_input: Res<Input<KeyCode>>,
-                         move_active: Res<SpritesMovable>,
+                         move_active: Res<GameData>,
                          mut tunnel_pos: Query<(&mut Transform,
                                                 &mut KeyMover)>,
 ) {
-    if !move_active.is_active { return; }
+    if move_active.is_paused { return; }
 
     // TODO: for some reason, LControl not being picked up - is Linux eating it?
     if keyboard_input.any_pressed([KeyCode::LControl, KeyCode::RControl, KeyCode::LAlt, KeyCode::RAlt]) {

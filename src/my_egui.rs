@@ -1,24 +1,16 @@
 /*
 
-So it turns out,
-    pub fn do_ui_setup(mut egui_context: ResMut<EguiContext>,
-                       mut random_data: ResMut<GuiData>,) {
-        let age: i32 = 0;
-
-doesn't work in Immediate-Mode. Wups. IM means every frame,
-the function refreshes the screen, and constructs the UI anew.
-Any data has to be stored somewhere else, like a Resource.
 */
 
 use bevy::prelude::*;
 #[allow(unused_imports)]
 use bevy_egui::{egui, EguiContext, EguiPlugin};
 use egui::Color32;
-use crate::{GuiData, SpritesMovable};
+use crate::{GuiData, GameData};
 
 pub fn do_ui_setup(mut egui_context: ResMut<EguiContext>,
                    mut random_data: ResMut<GuiData>,
-                   mut move_active: ResMut<SpritesMovable>,
+                   mut move_active: ResMut<GameData>,
 ) {
     let my_frame = egui::containers::Frame {
         outer_margin: Default::default(),
@@ -31,28 +23,18 @@ pub fn do_ui_setup(mut egui_context: ResMut<EguiContext>,
         stroke: Default::default(),
     };
 
-    egui::TopBottomPanel::top("top panel?").default_height(300.0)
+    egui::TopBottomPanel::top("top panel?").min_height(100.0)
         .frame(my_frame)
         // .resizable(true)  // Only works if there's a resizable element inside?
         .show(egui_context.ctx_mut(), |ui| {
             ui.heading("This is a Header that does nothing useful");
-            ui.label("This is a Label");
-            ui.horizontal(|ui| {
-                ui.label("Your name: ");
-                ui.text_edit_singleline(&mut random_data.some_name);
-            });
-            if ui.button("Click the magic-button").clicked() {
+            ui.label("This is just a Label");
+            if ui.button("Click the magic-button to pause").clicked() {
                 random_data.my_value += 1;
-                move_active.is_active = !move_active.is_active;
+                move_active.is_paused = !move_active.is_paused;
             }
-            if ui.button("RESET").clicked() {
-                // move_active.is_active = !move_active.is_active;
+            if ui.button("RESET THINGS").clicked() {
+                move_active.game_status = move_active.game_status.cycle();
             }
     });
 }
-
-pub fn do_ui_read(_random_data: ResMut<GuiData>,
-) {
-    // println!("random data: {:?}", random_data);
-}
-

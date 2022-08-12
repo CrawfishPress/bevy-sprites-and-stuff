@@ -40,18 +40,17 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(EguiPlugin)
 
-        .insert_resource(SpritesMovable { is_active: true })
-        .insert_resource(BackgroundMap { cur_map: OneBackground::Map1 })
-        // TODO: move these coords out - note the Hovercraft also use them
+        .insert_resource(GameData::default())
         .insert_resource(DragPoint::default())
+        .insert_resource(BackgroundMap { cur_map: OneBackground::Map1 })
 
         .add_startup_system(setup_sprites)
         .add_startup_system(setup_movers)
 
         .add_system(bevy::window::close_on_esc)
         .add_system(do_ui_setup)
-        .add_system(do_ui_read)
 
+        .add_system(reset_movers)
         .add_system(do_sprite_auto_move)
         .add_system(do_sprite_move_check)
         .add_system(do_movement_input)
@@ -65,7 +64,6 @@ fn setup_sprites(mut commands: Commands,
                  asset_server: Res<AssetServer>,
                  mut meshes: ResMut<Assets<Mesh>>,
                  mut materials: ResMut<Assets<ColorMaterial>>,
-                 mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     commands  // Camera
         .spawn_bundle(Camera2dBundle::default())
@@ -137,4 +135,28 @@ fn setup_movers(mut commands: Commands,
         .insert(HoverCraft::RightPoint)
         .insert(IsMousing { is_dragging: false})
         .insert(OneMover);
+}
+
+fn reset_movers(mut commands: Commands,
+                asset_server: Res<AssetServer>,
+                meshes: ResMut<Assets<Mesh>>,
+                materials: ResMut<Assets<ColorMaterial>>,
+                texture_atlases: ResMut<Assets<TextureAtlas>>,
+                mut move_active: ResMut<GameData>,
+                mut movers_query: Query<Entity, With<OneMover>>,
+) {
+    if move_active.game_status != GameState::Reset { return; }
+
+    // Say goodby to all the Mover Sprites
+    for one_sprite_id in movers_query.iter_mut() {
+        commands.entity(one_sprite_id).despawn();
+    }
+
+    // Reset all the variables in DragPoint - by replacing it?
+    commands.remove_resource::<DragPoint>();
+    commands.insert_resource(DragPoint::default());
+
+    setup_movers(commands, asset_server, meshes, materials, texture_atlases);
+
+    move_active.game_status = GameState::Running;
 }

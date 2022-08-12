@@ -17,6 +17,7 @@ basic techniques and concepts. Such as...
    - puts assorted Widgets into the TopPanel, including
      - a Button, that actually does something in-game
      - a Slider, that... slides...
+     - a Reset button, with associated game-logic
  - assorted ECS concepts
  - assorted Query usage
  - assorted Rust concepts
