@@ -6,30 +6,13 @@ Some Sprites are mouse-reactive:
 use bevy::prelude::*;
 use bevy::render::camera::Camera;
 use bevy::render::camera;
+use crate::{DragPoint, HoverCraft, IsMousing};
 
 // fn print_type_of<T>(_: &T) {print!("{}", std::any::type_name::<T>())} // Unstable.
 
 // Used to identify the main camera - granted, there's only one at the moment...
 #[derive(Component)]
 pub struct MainCamera;
-
-// Resource
-#[derive(Debug, Default)]
-pub struct DragPoint {
-    pub left_point: Vec2,
-    pub right_point: Vec2,
-}
-
-#[derive(Component, Debug)]
-pub enum HoverCraft {
-    LeftPoint,
-    RightPoint,
-}
-
-#[derive(Component)]
-pub struct IsMousing {
-    pub is_dragging: bool,
-}
 
 /*
 check_cursor_for_drag(): when the LMB is pressed, does:

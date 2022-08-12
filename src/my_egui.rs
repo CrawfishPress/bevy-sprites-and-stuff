@@ -14,15 +14,7 @@ use bevy::prelude::*;
 #[allow(unused_imports)]
 use bevy_egui::{egui, EguiContext, EguiPlugin};
 use egui::Color32;
-use crate::SpritesMovable;
-
-// GUI Resource
-#[derive(Debug, Default)]
-pub struct GuiData {
-    pub some_name: String,
-    pub my_value: i32,
-    pub my_other_value: f64,
-}
+use crate::{GuiData, SpritesMovable};
 
 pub fn do_ui_setup(mut egui_context: ResMut<EguiContext>,
                    mut random_data: ResMut<GuiData>,
@@ -53,7 +45,9 @@ pub fn do_ui_setup(mut egui_context: ResMut<EguiContext>,
                 random_data.my_value += 1;
                 move_active.is_active = !move_active.is_active;
             }
-            ui.add(egui::Slider::new(&mut random_data.my_other_value, 0.0..=100.0).text("My value"));
+            if ui.button("RESET").clicked() {
+                // move_active.is_active = !move_active.is_active;
+            }
     });
 }
 

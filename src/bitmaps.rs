@@ -1,44 +1,6 @@
-use std::fmt;
-use std::fmt::Formatter;
 use bevy::{prelude::*};
 use bevy::ecs::prelude::{Commands, Res};
-
-// Example of creating an Enum that maps to Strings (but *not* str)
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum OneBackground {
-    Map1,
-    Map2,
-}
-
-// See Lessons - this has to be converted to *str*, for use by asset-loader
-impl fmt::Display for OneBackground {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            OneBackground::Map1 => write!(f, "unsplash-Ai2TRdvI6gM.png"),
-            OneBackground::Map2 => write!(f, "unsplash-cTeQyMstoDI.png"),
-        }
-    }
-}
-
-// Adding a cycler-function (see lessons.md), so I don't have to say things like:
-// if map1, set target to map2 else set target to map1...
-impl OneBackground {
-    fn toggle(&self) -> Self {
-        match *self {
-            OneBackground::Map1 => OneBackground::Map2,
-            OneBackground::Map2 => OneBackground::Map1,
-        }
-    }
-}
-
-// There should only be one Sprite with this marker, or all hell might break loose.
-#[derive(Component)]
-pub struct IsBackground;
-
-// Resource
-pub struct BackgroundMap {
-    pub cur_map: OneBackground,
-}
+use crate::{BackgroundMap, IsBackground, OneBackground};
 
 /*
 do_background_swap(): when spacebar is pressed:

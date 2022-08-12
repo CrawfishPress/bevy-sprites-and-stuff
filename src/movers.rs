@@ -1,25 +1,6 @@
 use bevy::prelude::*;
 use bevy::ecs::{archetype::Archetypes, component::Components};
-use crate::{DragPoint};
-
-// Well, it *used* to be a car... Now it's a crab
-#[derive(Component)]
-pub enum CrabDirection {
-    Left,
-    Right,
-}
-
-// For a given Sprite, this determines if it can move, when arrow-keys are pressed.
-// Not actually used any more, originally the spacebar would toggle.
-#[derive(Component, Debug)]
-pub struct KeyMover {
-    pub is_movable: bool
-}
-
-// Resource - basically pauses all sprite-movement
-pub struct SpritesMovable {
-    pub is_active: bool
-}
+use crate::{CrabDirection, DragPoint, KeyMover, SpritesMovable};
 
 /*
 The first pass, this function moved the Sprite (crab) between points A and B. I decided

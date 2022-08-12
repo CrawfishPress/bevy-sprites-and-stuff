@@ -36,20 +36,21 @@ fn main() {
         })
         .insert_resource(ClearColor(BACKGROUND))
         // .insert_resource(WinitSettings::game()) // Hmmm...
-        .insert_resource(GuiData { some_name: "".to_string(), my_value: 0, my_other_value: 0.0 })
+        .insert_resource(GuiData::default())
         .add_plugins(DefaultPlugins)
         .add_plugin(EguiPlugin)
 
         .insert_resource(SpritesMovable { is_active: true })
         .insert_resource(BackgroundMap { cur_map: OneBackground::Map1 })
         // TODO: move these coords out - note the Hovercraft also use them
-        .insert_resource(DragPoint { left_point: Vec2 { x: -300.0, y: -200.0 }, right_point: Vec2 { x: 500.0, y: -200.0 }})
+        .insert_resource(DragPoint::default())
 
+        .add_startup_system(setup_sprites)
+        .add_startup_system(setup_movers)
+
+        .add_system(bevy::window::close_on_esc)
         .add_system(do_ui_setup)
         .add_system(do_ui_read)
-        .add_startup_system(setup_sprites)
-        .add_startup_system(setup_hovercraft)
-        .add_system(bevy::window::close_on_esc)
 
         .add_system(do_sprite_auto_move)
         .add_system(do_sprite_move_check)
@@ -66,11 +67,6 @@ fn setup_sprites(mut commands: Commands,
                  mut materials: ResMut<Assets<ColorMaterial>>,
                  mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    let texture_handle1 = asset_server.load("ferris.png");
-    let texture_atlas1 = TextureAtlas::from_grid
-        (texture_handle1, Vec2::new(128.0, 85.0), 1, 2);
-    let texture_atlas_handle1 = texture_atlases.add(texture_atlas1);
-
     commands  // Camera
         .spawn_bundle(Camera2dBundle::default())
         .insert(MainCamera);
@@ -95,6 +91,23 @@ fn setup_sprites(mut commands: Commands,
                 ..default()
             })
         .insert(KeyMover {is_movable: true});
+}
+
+fn setup_movers(mut commands: Commands,
+                asset_server: Res<AssetServer>,
+                mut meshes: ResMut<Assets<Mesh>>,
+                mut materials: ResMut<Assets<ColorMaterial>>,
+                mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
+    let texture_handle1 = asset_server.load("ferris.png");
+    let texture_atlas1 = TextureAtlas::from_grid
+        (texture_handle1, Vec2::new(128.0, 85.0), 1, 2);
+    let texture_atlas_handle1 = texture_atlases.add(texture_atlas1);
+
+    let texture_handle2 = asset_server.load("unsplash-IVAqc86tTu8_map.png");
+    let texture_atlas2 = TextureAtlas::from_grid
+        (texture_handle2, Vec2::new(256.0, 256.0), 1, 2);
+    let texture_atlas_handle2 = texture_atlases.add(texture_atlas2);
 
     commands  // Rust-crab
         .spawn_bundle(SpriteSheetBundle {
@@ -102,19 +115,8 @@ fn setup_sprites(mut commands: Commands,
             texture_atlas: texture_atlas_handle1,
             ..default()
         })
-        .insert(CrabDirection::Left);
-}
-
-fn setup_hovercraft(mut commands: Commands,
-                    asset_server: Res<AssetServer>,
-                    mut meshes: ResMut<Assets<Mesh>>,
-                    mut materials: ResMut<Assets<ColorMaterial>>,
-                    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-) {
-    let texture_handle2 = asset_server.load("unsplash-IVAqc86tTu8_map.png");
-    let texture_atlas2 = TextureAtlas::from_grid
-        (texture_handle2, Vec2::new(256.0, 256.0), 1, 2);
-    let texture_atlas_handle2 = texture_atlases.add(texture_atlas2);
+        .insert(CrabDirection::Left)
+        .insert(OneMover);
 
     commands  // Starfish
         .spawn_bundle(SpriteSheetBundle {
@@ -123,7 +125,8 @@ fn setup_hovercraft(mut commands: Commands,
             ..default()
         })
         .insert(HoverCraft::LeftPoint)
-        .insert(IsMousing { is_dragging: false});
+        .insert(IsMousing { is_dragging: false})
+        .insert(OneMover);
 
     commands // Hexagon
         .spawn_bundle(MaterialMesh2dBundle {
@@ -132,6 +135,6 @@ fn setup_hovercraft(mut commands: Commands,
             material: materials.add(ColorMaterial::from(Color::BISQUE)),
             ..default()})
         .insert(HoverCraft::RightPoint)
-        .insert(IsMousing { is_dragging: false});
-
+        .insert(IsMousing { is_dragging: false})
+        .insert(OneMover);
 }
