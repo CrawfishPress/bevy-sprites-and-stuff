@@ -117,7 +117,7 @@ impl Default for GameData {
     fn default() -> Self {
         GameData {
             game_status: GameState::Running,
-            is_paused: false,
+            is_paused: true,
         }
     }
 }
