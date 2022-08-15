@@ -42,7 +42,7 @@ fn main() {
 
         .insert_resource(GameData::default())
         .insert_resource(DragPoint::default())
-        .insert_resource(BackgroundMap { cur_map: OneBackground::Map1 })
+        .insert_resource(BackgroundMap::default())
 
         .add_startup_system(setup_sprites)
         .add_startup_system(setup_movers)
@@ -57,7 +57,7 @@ fn main() {
         .add_system(do_background_swap)
         .add_system(check_cursor_for_drag)
         .add_system(check_cursor_for_hover)
-        // .add_system(check_colors)
+        .add_system(get_cursor_map_coords)
         .run();
     println!("this is a test of the Bevy Engine - alas, this line is never reached, due to a bug");
 }

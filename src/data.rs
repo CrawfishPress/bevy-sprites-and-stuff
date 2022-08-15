@@ -55,6 +55,18 @@ impl OneBackground {
 // Resource for Background
 pub struct BackgroundMap {
     pub cur_map: OneBackground,
+    pub cursor_over_map: bool,
+    pub cursor_on_map: Vec2,
+}
+
+impl Default for BackgroundMap {
+    fn default() -> Self {
+        BackgroundMap {
+            cur_map: OneBackground::Map1,
+            cursor_over_map: false,
+            cursor_on_map: Vec2 { x: 0.0, y: 0.0 }
+        }
+    }
 }
 
 // There should only be one Sprite with this marker, or all hell might break loose.

@@ -10,10 +10,11 @@ Currently, it looks like only things with a Material assigned, have a Color-Hand
 where Color has Alpha. So Sprites/SpriteSheetBundles, so far, don't look alpha-modifiable.
 */
 
+// use bevy::asset::Asset;
 use bevy::prelude::*;
 use bevy::render::camera::Camera;
 use bevy::render::camera;
-use crate::{DragPoint, HoverCraft, IsMousing};
+use crate::{BackgroundMap, DragPoint, HoverCraft, IsBackground, IsMousing};
 
 // fn print_type_of<T>(_: &T) {print!("{}", std::any::type_name::<T>())} // Unstable.
 
@@ -22,7 +23,7 @@ use crate::{DragPoint, HoverCraft, IsMousing};
 pub struct MainCamera;
 
 
-//pub fn check_colors(
+//pub fn check_colors(  // Well, that could have gone better...
 //    mut materials: ResMut<Assets<ColorMaterial>>,
 //    mut some_colors: Query<(Entity, &Handle<ColorMaterial>, &mut Transform,)>,
 //) {
@@ -31,6 +32,47 @@ pub struct MainCamera;
 //        println!("entity[{:?}]: color: {:?}, pos: {:?}", entity_id, color, some_pos.translation);
 //    }
 //}
+
+/*
+Will get mouse-coordinates, relative to map bottom-left corner.
+Assuming the Map is positioned at 0, 0 (center of map at center of screen)
+Not really used for anything yet, just experimenting.
+*/
+pub fn get_cursor_map_coords(
+    windows: Res<Windows>,
+    the_assets: Res<Assets<Image>>,
+    mut the_map: ResMut<BackgroundMap>,
+    my_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    any_map: Query<(Entity, &Handle<Image>), With<IsBackground>>,
+) {
+    // get the camera info and transform
+    // assuming there is exactly one main camera entity, so query::single() is OK
+    let (camera, camera_transform) = my_camera.single();
+    let some_window = windows.get_primary().unwrap();  // Here's hoping there's always a window...
+    let maybe_camera_pos = parse_camera_loc(camera, camera_transform, some_window);
+    if maybe_camera_pos.is_none() { return; }
+    let camera_pos = maybe_camera_pos.unwrap();
+
+    let (_entity_id, image_handle) = any_map.get_single().unwrap();  // Gosh, I sure hope there's only one map.
+    let maybe_map_image = the_assets.get(image_handle);
+    if maybe_map_image.is_none() {println!("wups - no map?"); return; }
+    let map_image = maybe_map_image.unwrap().size();
+
+    let map_offset_x = - map_image.x / 2.0;
+    let map_offset_y = - map_image.y / 2.0;
+    let rel_map_pos = Vec2 { x: camera_pos.x - map_offset_x, y: camera_pos.y - map_offset_y };
+        if (rel_map_pos.x >= 0.0) && (rel_map_pos.x <= map_image.x) &&
+           (rel_map_pos.y >= 0.0) && (rel_map_pos.y <= map_image.y)
+        {
+            the_map.cursor_over_map = true;
+            the_map.cursor_on_map = rel_map_pos;
+        }
+        else {
+            the_map.cursor_over_map = false;
+            the_map.cursor_on_map = rel_map_pos;
+        }
+}
+
 
 pub fn check_cursor_for_hover(
     windows: Res<Windows>,
@@ -45,7 +87,7 @@ pub fn check_cursor_for_hover(
     if maybe_camera_pos.is_none() { return; }
 
     let camera_pos = maybe_camera_pos.unwrap();
-    for (entity_id, mut hovering, mut some_sprite_pos) in any_hovercraft.iter_mut() {
+    for (_entity_id, mut hovering, mut some_sprite_pos) in any_hovercraft.iter_mut() {
         if check_mouse_over_sprite(&some_sprite_pos, camera_pos) == true
         {
             hovering.is_hovering = true;

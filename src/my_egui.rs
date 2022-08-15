@@ -6,9 +6,10 @@ https://docs.rs/egui/latest/egui/
 use bevy::prelude::*;
 use bevy_egui::*;
 use egui::*;
-use crate::{GuiData, GameData};
+use crate::{GuiData, GameData, BackgroundMap};
 
-pub fn do_ui_setup(mut egui_context: ResMut<EguiContext>,
+pub fn do_ui_setup(the_map: Res<BackgroundMap>,
+                   mut egui_context: ResMut<EguiContext>,
                    mut random_data: ResMut<GuiData>,
                    mut move_active: ResMut<GameData>,
 ) {
@@ -23,7 +24,7 @@ pub fn do_ui_setup(mut egui_context: ResMut<EguiContext>,
         stroke: Default::default(),
     };
 
-    let big_text_lbl_1 = RichText::new("Mouse-drag the starfish/hexagon, and arrow-keys move the rectangle")
+    let intro_text = RichText::new("Mouse-drag the starfish/hexagon, and arrow-keys move the rectangle")
         .color(Color32::WHITE).font(FontId::proportional(20.0));
 
     let pause_string: String;
@@ -32,14 +33,22 @@ pub fn do_ui_setup(mut egui_context: ResMut<EguiContext>,
     } else {
         pause_string = "Click the magic-button to pause".parse().unwrap();
     }
-
-    let btn_text_1 = RichText::new(pause_string)
+    let pause_btn_txt = RichText::new(pause_string)
         .color(Color32::WHITE).background_color(Color32::BLACK).font(FontId::proportional(20.0)).size(25.0);
 
-    let btn_text_3 = RichText::new("Reset Things")
+    let coords_string: String;
+    if the_map.cursor_over_map {
+        coords_string = format!("Map Coords: [{:.0}:{:.0}]", the_map.cursor_on_map.x, the_map.cursor_on_map.y);
+    } else {
+        coords_string = format!("Off-Map Coords: [{:.0}:{:.0}]", the_map.cursor_on_map.x, the_map.cursor_on_map.y);
+    }
+    let coords_txt = RichText::new(coords_string)
+        .color(Color32::BLACK).background_color(Color32::GRAY).font(FontId::proportional(20.0)).size(25.0);
+
+    let reset_btn_txt = RichText::new("Reset Things")
         .color(Color32::WHITE).background_color(Color32::BLACK).font(FontId::proportional(20.0)).size(25.0);
 
-    let big_text_lbl_11 = RichText::new("BROWSER? Hit <ctrl>- a few times to shrink, while we work on it.")
+    let wasm_browser_txt = RichText::new("BROWSER? Hit <ctrl>- a few times to shrink, while we work on it.")
         .color(Color32::WHITE).font(FontId::proportional(40.0));
 
     TopBottomPanel::top("top panel?").min_height(80.0)
@@ -49,34 +58,35 @@ pub fn do_ui_setup(mut egui_context: ResMut<EguiContext>,
             ui.style_mut().spacing.item_spacing = egui::Vec2 {x: 30.0, y: 0.0};
 
             // Tab-panel
-            let tab_text_1 = RichText::new("Loading Screen")
+            let tab_load_screen = RichText::new("Loading Screen")
                 .color(Color32::WHITE).background_color(Color32::BLUE).font(FontId::proportional(20.0)).size(25.0);
-            let tab_text_2 = RichText::new("Action Screen")
+            let tab_action_screen = RichText::new("Action Screen")
                 .color(Color32::WHITE).background_color(Color32::BLUE).font(FontId::proportional(20.0)).size(25.0);
             ui.horizontal(|ui| {
-                if ui.button(tab_text_1).clicked() {
+                if ui.button(tab_load_screen).clicked() {
                     // move_active.game_status = move_active.game_status.cycle();
                 }
-                if ui.button(tab_text_2).clicked() {
-                    random_data.my_value += 1;
+                if ui.button(tab_action_screen).clicked() {
                     // move_active.is_paused = !move_active.is_paused;
                 }
-                ui.label(big_text_lbl_11);
+                ui.label(wasm_browser_txt);
             });
 
             ui.horizontal(|ui| {
-                // ui.heading("This is a Header (Label) that does nothing useful");
-                ui.add_sized([420.0, 40.0], Label::new(big_text_lbl_1));
-            });
-
-            ui.horizontal(|ui| {
-                if ui.button(btn_text_3).clicked() {
+                if ui.button(reset_btn_txt).clicked() {
                     move_active.game_status = move_active.game_status.cycle();
                 }
-                if ui.button(btn_text_1).clicked() {
+                if ui.button(pause_btn_txt).clicked() {
                     random_data.my_value += 1;
                     move_active.is_paused = !move_active.is_paused;
                 }
             });
+
+            ui.horizontal(|ui| {
+                // ui.heading("This is a Header (Label) that does nothing useful");
+                ui.add_sized([200.0, 40.0], Label::new(coords_txt));
+                ui.add_sized([420.0, 40.0], Label::new(intro_text));
+            });
+
     });
 }
