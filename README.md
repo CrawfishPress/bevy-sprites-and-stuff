@@ -10,7 +10,7 @@ basic techniques and concepts. Such as...
  - mouse/keyboard inputs
    - spacebar pauses game/changes background
    - moving sprites via the arrow-keys
-   - mouse-dragging a sprite
+   - mouse-dragging a sprite, mouse-hovering over sprite
  - EGUI usage integrated into Bevy systems
    - creates a TopPanel
    - creates a Frame, which modifies the panel's appearance

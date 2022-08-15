@@ -1,6 +1,13 @@
 /*
 Some Sprites are mouse-reactive:
- - currently they can be dragged by the mouse when the LMB is held down.
+ - they can be dragged by the mouse when the LMB is held down.
+ - mouse-hovering, increases the Sprite.Scale by 20%
+
+I may change the mouse-hovering effect, to something altering the Bitmap,
+like a border, say. But the two sprites have different bitmaps - one is
+a SpriteAtlas, another is a MaterialsMesh - so that will require some research.
+Currently, it looks like only things with a Material assigned, have a Color-Handle,
+where Color has Alpha. So Sprites/SpriteSheetBundles, so far, don't look alpha-modifiable.
 */
 
 use bevy::prelude::*;
@@ -13,6 +20,46 @@ use crate::{DragPoint, HoverCraft, IsMousing};
 // Used to identify the main camera - granted, there's only one at the moment...
 #[derive(Component)]
 pub struct MainCamera;
+
+
+//pub fn check_colors(
+//    mut materials: ResMut<Assets<ColorMaterial>>,
+//    mut some_colors: Query<(Entity, &Handle<ColorMaterial>, &mut Transform,)>,
+//) {
+//    for (entity_id, color_handle, some_pos) in some_colors.iter_mut() {
+//        let color = &mut materials.get_mut(color_handle).unwrap().color;
+//        println!("entity[{:?}]: color: {:?}, pos: {:?}", entity_id, color, some_pos.translation);
+//    }
+//}
+
+pub fn check_cursor_for_hover(
+    windows: Res<Windows>,
+    my_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    mut any_hovercraft: Query<(Entity, &mut IsMousing, &mut Transform,)>,
+) {
+    // get the camera info and transform
+    // assuming there is exactly one main camera entity, so query::single() is OK
+    let (camera, camera_transform) = my_camera.single();
+    let some_window = windows.get_primary().unwrap();  // Here's hoping there's always a window...
+    let maybe_camera_pos = parse_camera_loc(camera, camera_transform, some_window);
+    if maybe_camera_pos.is_none() { return; }
+
+    let camera_pos = maybe_camera_pos.unwrap();
+    for (entity_id, mut hovering, mut some_sprite_pos) in any_hovercraft.iter_mut() {
+        if check_mouse_over_sprite(&some_sprite_pos, camera_pos) == true
+        {
+            hovering.is_hovering = true;
+            // println!("Entity: {:?}, scale: {:?}", entity_id, some_sprite_pos.scale);
+            some_sprite_pos.scale.x = 1.2;
+            some_sprite_pos.scale.y = 1.2;
+        }
+        else {
+            hovering.is_hovering = false;
+            some_sprite_pos.scale.x = 1.0;
+            some_sprite_pos.scale.y = 1.0;
+        }
+    }
+}
 
 /*
 check_cursor_for_drag(): when the LMB is pressed, does:

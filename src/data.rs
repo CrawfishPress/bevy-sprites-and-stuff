@@ -103,6 +103,7 @@ pub struct OneMover;
 #[derive(Component)]
 pub struct IsMousing {
     pub is_dragging: bool,
+    pub is_hovering: bool,
 }
 
 // General Game status-data

@@ -56,6 +56,8 @@ fn main() {
         .add_system(do_movement_input)
         .add_system(do_background_swap)
         .add_system(check_cursor_for_drag)
+        .add_system(check_cursor_for_hover)
+        // .add_system(check_colors)
         .run();
     println!("this is a test of the Bevy Engine - alas, this line is never reached, due to a bug");
 }
@@ -123,7 +125,7 @@ fn setup_movers(mut commands: Commands,
             ..default()
         })
         .insert(HoverCraft::LeftPoint)
-        .insert(IsMousing { is_dragging: false})
+        .insert(IsMousing { is_dragging: false, is_hovering: false })
         .insert(OneMover);
 
     commands // Hexagon
@@ -133,7 +135,7 @@ fn setup_movers(mut commands: Commands,
             material: materials.add(ColorMaterial::from(Color::BISQUE)),
             ..default()})
         .insert(HoverCraft::RightPoint)
-        .insert(IsMousing { is_dragging: false})
+        .insert(IsMousing { is_dragging: false, is_hovering: false })
         .insert(OneMover);
 }
 
