@@ -6,9 +6,9 @@ https://docs.rs/egui/latest/egui/
 use bevy::prelude::*;
 use bevy_egui::*;
 use egui::*;
-use crate::{GuiData, GameData, BackgroundActionMap, CurScreen, ScreenManager};
+use crate::{GuiData, GameData, BackgroundMapVisible, CurScreen, ScreenManager};
 
-pub fn do_ui_setup(the_map: Res<BackgroundActionMap>,
+pub fn do_ui_setup(the_map: Res<BackgroundMapVisible>,
                    mut egui_context: ResMut<EguiContext>,
                    mut random_data: ResMut<GuiData>,
                    mut game_status: ResMut<GameData>,
@@ -66,6 +66,7 @@ pub fn do_ui_setup(the_map: Res<BackgroundActionMap>,
     let wasm_browser_txt = RichText::new("BROWSER? Hit <ctrl>- a few times to shrink, while we work on it.")
         .color(Color32::WHITE).font(FontId::proportional(40.0));
 
+    // Finally, a displayable Widget - Top Panel
     TopBottomPanel::top("top panel?").min_height(80.0)
         .frame(my_style_frame)
         // .resizable(true)  // Only works if there's a resizable element inside?
@@ -87,22 +88,24 @@ pub fn do_ui_setup(the_map: Res<BackgroundActionMap>,
                 ui.label(wasm_browser_txt);
             });
 
-            // Buttons, Pause/Reset
-            ui.horizontal(|ui| {
-                if ui.button(reset_btn_txt).clicked() {
-                    game_status.action_status = game_status.action_status.cycle();
-                }
-                if ui.button(pause_btn_txt).clicked() {
-                    random_data.my_value += 1;
-                    game_status.is_paused = !game_status.is_paused;
-                }
-            });
+            // This is kinda kludgy, but then again, I've found everything about egui to be kludgy. :)
+            if screen_mgr.current_screen == CurScreen::ActionScreen {
+                // Buttons, Pause/Reset
+                ui.horizontal(|ui| {
+                    if ui.button(reset_btn_txt).clicked() {
+                        game_status.action_status = game_status.action_status.cycle();
+                    }
+                    if ui.button(pause_btn_txt).clicked() {
+                        random_data.my_value += 1;
+                        game_status.is_paused = !game_status.is_paused;
+                    }
+                });
 
-            // Assorted Information
-            ui.horizontal(|ui| {
-                ui.add_sized([200.0, 40.0], Label::new(coords_txt));
-                ui.add_sized([420.0, 40.0], Label::new(intro_text));
-            });
-
+                // Assorted Information
+                ui.horizontal(|ui| {
+                    ui.add_sized([200.0, 40.0], Label::new(coords_txt));
+                    ui.add_sized([420.0, 40.0], Label::new(intro_text));
+                });
+            }
     });
 }

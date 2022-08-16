@@ -44,42 +44,44 @@ fn main() {
         .insert_resource(GuiData::default())
         .insert_resource(GameData::default())
         .insert_resource(DragPoint::default())
-        .insert_resource(BackgroundActionMap::default())
+        .insert_resource(BackgroundMapVisible::default())
         .insert_resource(ScreenManager { current_screen: CurScreen::LoadScreen })
 
-        .add_startup_system(setup_sprites)
-        .add_startup_system(setup_movers)
-
+        .add_startup_system(setup_camera)
         .add_system(bevy::window::close_on_esc)
         .add_system(do_ui_setup)
 
-        .add_system(reset_movers)
-        .add_system(do_sprite_auto_move)
-        .add_system(do_sprite_move_check)
-        .add_system(do_movement_input)
+        .add_system(do_change_screen_background)
+        .add_system(do_update_background)
+        .add_system(do_background_swap_action)
 
-        .add_system(do_change_screen)
+        // .add_startup_system(setup_sprites)
+        //.add_startup_system(setup_movers)
 
-        .add_system(do_background_swap_ac)
-        .add_system(check_cursor_for_drag)
-        .add_system(check_cursor_for_hover)
-        .add_system(apply_any_hovers)
-        .add_system(get_cursor_map_coords)
+        //.add_system(reset_movers)
+        //.add_system(do_sprite_auto_move)
+        //.add_system(do_sprite_move_check)
+        //.add_system(do_movement_input)
+        //
+        //.add_system(check_cursor_for_drag)
+        //.add_system(check_cursor_for_hover)
+        //.add_system(apply_any_hovers)
+        //.add_system(get_cursor_map_coords)
         .run();
     println!("this is a test of the Bevy Engine - alas, this line is never reached, due to a bug");
 }
 
-fn setup_sprites(mut commands: Commands,
-                 asset_server: Res<AssetServer>,
-                 mut meshes: ResMut<Assets<Mesh>>,
-                 mut materials: ResMut<Assets<ColorMaterial>>,
-) {
+fn setup_camera(mut commands: Commands)
+{
     commands  // Camera
         .spawn_bundle(Camera2dBundle::default())
         .insert(MainCamera);
+}
 
-    add_background(&mut commands, &asset_server, BackgroundAction::Map1);
-
+fn setup_sprites(mut commands: Commands,
+                 mut meshes: ResMut<Assets<Mesh>>,
+                 mut materials: ResMut<Assets<ColorMaterial>>,
+) {
     commands // Center Pixel
         .spawn_bundle(MaterialMesh2dBundle {
             transform: Transform::from_translation(Vec3::new(0.0, 0.0, 5.0)),
