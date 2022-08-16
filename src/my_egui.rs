@@ -6,12 +6,12 @@ https://docs.rs/egui/latest/egui/
 use bevy::prelude::*;
 use bevy_egui::*;
 use egui::*;
-use crate::{GuiData, GameData, BackgroundMap, ScreenManager, CurScreen};
+use crate::{GuiData, GameData, BackgroundActionMap, CurScreen, ScreenManager};
 
-pub fn do_ui_setup(the_map: Res<BackgroundMap>,
+pub fn do_ui_setup(the_map: Res<BackgroundActionMap>,
                    mut egui_context: ResMut<EguiContext>,
                    mut random_data: ResMut<GuiData>,
-                   mut move_active: ResMut<GameData>,
+                   mut game_status: ResMut<GameData>,
                    mut screen_mgr: ResMut<ScreenManager>,
 ) {
     let my_style_frame = containers::Frame {
@@ -26,7 +26,7 @@ pub fn do_ui_setup(the_map: Res<BackgroundMap>,
     };
 
     let pause_string: String;
-    if move_active.is_paused {
+    if game_status.is_paused {
         pause_string = "Click the magic-button to start".parse().unwrap();
     } else {
         pause_string = "Click the magic-button to pause".parse().unwrap();
@@ -43,10 +43,19 @@ pub fn do_ui_setup(the_map: Res<BackgroundMap>,
     let coords_txt = RichText::new(coords_string)
         .color(Color32::BLACK).background_color(Color32::GRAY).font(FontId::proportional(20.0)).size(25.0);
 
-    let tab_load_screen_txt = RichText::new("Loading Screen")
-        .color(Color32::WHITE).background_color(Color32::BLUE).font(FontId::proportional(20.0)).size(15.0);
-    let tab_action_screen_txt = RichText::new("Action Screen")
+    let mut tab_load_screen_txt = RichText::new("Loading Screen")
         .color(Color32::WHITE).background_color(Color32::BLUE).font(FontId::proportional(20.0)).size(25.0);
+    let mut tab_action_screen_txt = RichText::new("Action Screen")
+        .color(Color32::WHITE).background_color(Color32::BLUE).font(FontId::proportional(20.0)).size(25.0);
+
+    if screen_mgr.current_screen == CurScreen::LoadScreen {
+        tab_load_screen_txt = tab_load_screen_txt.color(Color32::WHITE);
+        tab_action_screen_txt = tab_action_screen_txt.color(Color32::GRAY);
+    } else {
+        tab_load_screen_txt = tab_load_screen_txt.color(Color32::GRAY);
+        tab_action_screen_txt = tab_action_screen_txt.color(Color32::WHITE);
+    }
+
 
     let intro_text = RichText::new("Mouse-drag the starfish/hexagon, and arrow-keys move the rectangle")
         .color(Color32::WHITE).font(FontId::proportional(20.0));
@@ -66,12 +75,13 @@ pub fn do_ui_setup(the_map: Res<BackgroundMap>,
             // Screen-manager tabs
             ui.horizontal(|ui| {
                 // ui.style_mut().visuals.window_shadow;
-                let some_button = egui::Button::new(tab_load_screen_txt);
-                if ui.add(some_button).clicked() {
-//                if ui.button(tab_load_screen_txt).clicked() {
+                // ui.visuals_mut().dark_mode = true;
+                let load_some_button = egui::Button::new(tab_load_screen_txt);
+                if ui.add(load_some_button).clicked() {
                     screen_mgr.current_screen = CurScreen::LoadScreen;
                 }
-                if ui.button(tab_action_screen_txt).clicked() {
+                let action_some_button = egui::Button::new(tab_action_screen_txt);
+                if ui.add(action_some_button).clicked() {
                     screen_mgr.current_screen = CurScreen::ActionScreen;
                 }
                 ui.label(wasm_browser_txt);
@@ -80,11 +90,11 @@ pub fn do_ui_setup(the_map: Res<BackgroundMap>,
             // Buttons, Pause/Reset
             ui.horizontal(|ui| {
                 if ui.button(reset_btn_txt).clicked() {
-                    move_active.game_status = move_active.game_status.cycle();
+                    game_status.action_status = game_status.action_status.cycle();
                 }
                 if ui.button(pause_btn_txt).clicked() {
                     random_data.my_value += 1;
-                    move_active.is_paused = !move_active.is_paused;
+                    game_status.is_paused = !game_status.is_paused;
                 }
             });
 

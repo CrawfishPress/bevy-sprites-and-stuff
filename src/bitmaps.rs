@@ -1,6 +1,6 @@
 use bevy::{prelude::*};
 use bevy::ecs::prelude::{Commands, Res};
-use crate::{BackgroundMap, IsBackground, OneBackground};
+use crate::{BackgroundActionMap, IsBackground, BackgroundAction, GameData, CurScreen, ScreenManager};
 
 /*
 do_background_swap(): when spacebar is pressed:
@@ -8,12 +8,16 @@ do_background_swap(): when spacebar is pressed:
  - despawns it
  - respawns the next Map in the Enum
 */
-pub fn do_background_swap(mut commands: Commands,
-                          asset_server: Res<AssetServer>,
-                          keyboard_input: Res<Input<KeyCode>>,
-                          mut cur_backmap: ResMut<BackgroundMap>,
-                          mut sprite_map_qry: Query<Entity, With<IsBackground>>,
+pub fn do_background_swap_ac(mut commands: Commands,
+                             asset_server: Res<AssetServer>,
+                             keyboard_input: Res<Input<KeyCode>>,
+
+                             screen_mgr: Res<ScreenManager>,
+                             mut cur_backmap: ResMut<BackgroundActionMap>,
+                             mut sprite_map_qry: Query<Entity, With<IsBackground>>,
 ) {
+    if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
+
     if keyboard_input.just_pressed(KeyCode::Space) {
         // This should never happen - originally, there was another step, where there
         // was no background-sprite, and the next spacebar refreshed to another map.
@@ -28,7 +32,7 @@ pub fn do_background_swap(mut commands: Commands,
     }
 }
 
-pub fn add_background(commands: &mut Commands, asset_server: &Res<AssetServer>, some_bitmap: OneBackground)
+pub fn add_background(commands: &mut Commands, asset_server: &Res<AssetServer>, some_bitmap: BackgroundAction)
 {
     let background_string = &*some_bitmap.to_string();
     commands  // Background Map

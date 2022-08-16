@@ -1,5 +1,5 @@
 /*
-I've just moved Resource/Enum/Structs here, too, haven't decided if
+I've just moved Resource/Enum/Structs here, too, still haven't decided if
 this is a good idea, or not.
 */
 
@@ -22,60 +22,51 @@ pub struct GuiData {
     pub my_other_value: f64,
 }
 
-// Game-level States
+// Load-Screen Background
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum CurScreen {
-    LoadScreen,
-    ActionScreen,
-}
+pub const LOAD_SCREEN_BACKGROUND: &str = "unsplash-MS7KD9Ti7FQ.png";
 
-// Resource pretending to be a Screen manager
-pub struct ScreenManager {
-    pub current_screen: CurScreen,
-}
-
-// Background stuff
+// Action-Screen Background stuff
 
 // Example of creating an Enum that maps to Strings (but *not* str)
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub enum OneBackground {
+pub enum BackgroundAction {
     Map1,
     Map2,
 }
 
 // See Lessons - this has to be converted to *str*, for use by asset-loader
-impl fmt::Display for OneBackground {
+impl fmt::Display for BackgroundAction {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            OneBackground::Map1 => write!(f, "unsplash-Ai2TRdvI6gM.png"),
-            OneBackground::Map2 => write!(f, "unsplash-cTeQyMstoDI.png"),
+            BackgroundAction::Map1 => write!(f, "unsplash-Ai2TRdvI6gM.png"),
+            BackgroundAction::Map2 => write!(f, "unsplash-cTeQyMstoDI.png"),
         }
     }
 }
 
 // Adding a cycler-function (see lessons.md), so I don't have to say things like:
 // if map1, set target to map2 else set target to map1...
-impl OneBackground {
+impl BackgroundAction {
     pub fn toggle(&self) -> Self {
         match *self {
-            OneBackground::Map1 => OneBackground::Map2,
-            OneBackground::Map2 => OneBackground::Map1,
+            BackgroundAction::Map1 => BackgroundAction::Map2,
+            BackgroundAction::Map2 => BackgroundAction::Map1,
         }
     }
 }
 
-// Resource for Background
-pub struct BackgroundMap {
-    pub cur_map: OneBackground,
+// Resource for Action-Screen Background
+pub struct BackgroundActionMap {
+    pub cur_map: BackgroundAction,
     pub cursor_over_map: bool,
     pub cursor_on_map: Vec2,
 }
 
-impl Default for BackgroundMap {
+impl Default for BackgroundActionMap {
     fn default() -> Self {
-        BackgroundMap {
-            cur_map: OneBackground::Map1,
+        BackgroundActionMap {
+            cur_map: BackgroundAction::Map1,
             cursor_over_map: false,
             cursor_on_map: Vec2 { x: 0.0, y: 0.0 }
         }
@@ -135,14 +126,14 @@ pub struct IsMousing {
 
 // Resource
 pub struct GameData {
-    pub game_status: GameState,
+    pub action_status: ActionState,
     pub is_paused: bool,
 }
 
 impl Default for GameData {
     fn default() -> Self {
         GameData {
-            game_status: GameState::Running,
+            action_status: ActionState::Running,
             is_paused: true,
         }
     }
@@ -150,17 +141,28 @@ impl Default for GameData {
 
 // Cycled by a GUI Reset button
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub enum GameState {
+pub enum ActionState {
     Running,
     Reset,
 }
 
 // Adding a cycler-function to simplify changing states
-impl GameState {
+impl ActionState {
     pub fn cycle(&self) -> Self {
         match *self {
-            GameState::Running => GameState::Reset,
-            GameState::Reset => GameState::Running,
+            ActionState::Running => ActionState::Reset,
+            ActionState::Reset => ActionState::Running,
         }
     }
+}
+
+// Screen-state Resource, pretending to be a Screen manager
+pub struct ScreenManager {
+    pub current_screen: CurScreen,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum CurScreen {
+    LoadScreen,
+    ActionScreen,
 }

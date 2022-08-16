@@ -14,12 +14,14 @@ mod movers;
 mod mousing;
 mod data;
 mod my_egui;
+mod screens;
 
 use bitmaps::*;
 use movers::*;
 use mousing::*;
 use data::*;
 use my_egui::*;
+use screens::*;
 
 fn main() {
     App::new()
@@ -36,14 +38,14 @@ fn main() {
         })
         .insert_resource(ClearColor(BACKGROUND))
         // .insert_resource(WinitSettings::game()) // Hmmm...
-        .insert_resource(GuiData::default())
-        .insert_resource(ScreenManager { current_screen: CurScreen::LoadScreen })
         .add_plugins(DefaultPlugins)
         .add_plugin(EguiPlugin)
 
+        .insert_resource(GuiData::default())
         .insert_resource(GameData::default())
         .insert_resource(DragPoint::default())
-        .insert_resource(BackgroundMap::default())
+        .insert_resource(BackgroundActionMap::default())
+        .insert_resource(ScreenManager { current_screen: CurScreen::LoadScreen })
 
         .add_startup_system(setup_sprites)
         .add_startup_system(setup_movers)
@@ -55,7 +57,10 @@ fn main() {
         .add_system(do_sprite_auto_move)
         .add_system(do_sprite_move_check)
         .add_system(do_movement_input)
-        .add_system(do_background_swap)
+
+        .add_system(do_change_screen)
+
+        .add_system(do_background_swap_ac)
         .add_system(check_cursor_for_drag)
         .add_system(check_cursor_for_hover)
         .add_system(apply_any_hovers)
@@ -73,7 +78,7 @@ fn setup_sprites(mut commands: Commands,
         .spawn_bundle(Camera2dBundle::default())
         .insert(MainCamera);
 
-    add_background(&mut commands, &asset_server, OneBackground::Map1);
+    add_background(&mut commands, &asset_server, BackgroundAction::Map1);
 
     commands // Center Pixel
         .spawn_bundle(MaterialMesh2dBundle {
@@ -149,7 +154,7 @@ fn reset_movers(mut commands: Commands,
                 mut move_active: ResMut<GameData>,
                 mut movers_query: Query<Entity, With<OneMover>>,
 ) {
-    if move_active.game_status != GameState::Reset { return; }
+    if move_active.action_status != ActionState::Reset { return; }
 
     // Say goodby to all the Mover Sprites
     for one_sprite_id in movers_query.iter_mut() {
@@ -162,5 +167,5 @@ fn reset_movers(mut commands: Commands,
 
     setup_movers(commands, asset_server, meshes, materials, texture_atlases);
 
-    move_active.game_status = GameState::Running;
+    move_active.action_status = ActionState::Running;
 }

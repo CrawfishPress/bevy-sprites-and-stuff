@@ -23,7 +23,7 @@ use bevy::prelude::*;
 use bevy::render::camera::Camera;
 use bevy::render::camera;
 // use bevy::sprite::{MaterialMesh2dBundle, Material2d};
-use crate::{BackgroundMap, DragPoint, HoverCraft, IsBackground, IsMousing};
+use crate::{BackgroundActionMap, DragPoint, HoverCraft, IsBackground, IsMousing};
 
 // fn print_type_of<T>(_: &T) {print!("{}", std::any::type_name::<T>())} // Unstable.
 
@@ -40,7 +40,7 @@ Not really used for anything yet, just experimenting.
 pub fn get_cursor_map_coords(
     windows: Res<Windows>,
     the_assets: Res<Assets<Image>>,
-    mut the_map: ResMut<BackgroundMap>,
+    mut the_map: ResMut<BackgroundActionMap>,
     my_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
     any_map: Query<(Entity, &Transform, &Handle<Image>), With<IsBackground>>,
 ) {
