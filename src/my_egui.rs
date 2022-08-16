@@ -9,10 +9,10 @@ use egui::*;
 use crate::*;
 
 pub fn do_ui_setup(the_map: Res<BackgroundMapVisible>,
+                   mut screen_mgr: ResMut<ScreenManager>,
                    mut egui_context: ResMut<EguiContext>,
                    mut random_data: ResMut<GuiData>,
                    mut game_status: ResMut<GameData>,
-                   mut screen_mgr: ResMut<ScreenManager>,
 ) {
     let my_style_frame = containers::Frame {
         outer_margin: Default::default(),

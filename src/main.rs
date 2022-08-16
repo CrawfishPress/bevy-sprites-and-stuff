@@ -59,17 +59,18 @@ fn main() {
 
         .add_system(do_remove_sprites_action)
         .add_system(do_add_sprites_action)
-        //.add_startup_system(setup_movers)
 
+        //.add_startup_system(setup_movers)
         //.add_system(reset_movers)
-        //.add_system(do_sprite_auto_move)
-        //.add_system(do_sprite_move_check)
-        //.add_system(do_movement_input)
-        //
-        //.add_system(check_cursor_for_drag)
-        //.add_system(check_cursor_for_hover)
-        //.add_system(apply_any_hovers)
-        //.add_system(get_cursor_map_coords)
+
+        .add_system(do_sprite_auto_move)
+        .add_system(do_sprite_move_check)
+        .add_system(do_movement_input)
+
+        .add_system(check_cursor_for_drag)
+        .add_system(check_cursor_for_hover)
+        .add_system(apply_any_hovers)
+        .add_system(get_cursor_map_coords)
         .run();
     println!("this is a test of the Bevy Engine - alas, this line is never reached, due to a bug");
 }

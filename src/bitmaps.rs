@@ -48,10 +48,8 @@ pub fn do_update_background(mut commands: Commands,
     if ! background_mgr.is_changed() { return; }
 
     // Remove any existing Backgrounds - but *only* if they exist...
-    let maybe_entity_id = sprite_map_qry.get_single_mut();  // Returns a Result<Entity, Error>
-    if maybe_entity_id.is_ok() {
-        let entity_id = maybe_entity_id.unwrap();
-        commands.entity(entity_id).despawn();
+    for one_entity_id in sprite_map_qry.iter_mut(){
+        commands.entity(one_entity_id).despawn();
     }
 
     // Create new Background Map/Sprite

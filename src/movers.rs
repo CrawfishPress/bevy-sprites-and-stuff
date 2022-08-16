@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy::ecs::{archetype::Archetypes, component::Components};
-use crate::{CrabDirection, DragPoint, KeyMover, GameData};
+use crate::*;
 
 /*
 The first pass, this function moved the Sprite (crab) between points A and B. I decided
@@ -15,10 +15,12 @@ moving between A/B (by adding X pixels), was a constant speed the whole way. I m
 to rethink the lerp. OTOH, it does sort of look crab-like...
 */
 pub fn do_sprite_auto_move(drag_points: Res<DragPoint>,
+                           screen_mgr: Res<ScreenManager>,
                            move_active: Res<GameData>,
                            mut sprite_query: Query<(&mut Transform,
                                                 &mut CrabDirection,)>,
 ) {
+    if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
     if move_active.is_paused { return; }  // Spacebar pauses movement
 
     // TODO: there's now only one auto-moving sprite, the Crab - I could change these loops to single.
@@ -44,10 +46,13 @@ it's checking for being "close enough". I mean, those Sprites could be anywhere.
 */
 // TODO: if there's only one auto-moving sprite, I can make the TextureAtlas not an Option - worth it?
 pub fn do_sprite_move_check(drag_points: Res<DragPoint>,
+                            screen_mgr: Res<ScreenManager>,
                             mut sprite_position: Query<(&Transform,
                                                      &mut CrabDirection,
                                                      Option<&mut TextureAtlasSprite>)>,
 ) {
+    if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
+
     for (sprite_pos, mut moving_dir, tas) in &mut sprite_position {
         let sprite_vec2 = sprite_pos.translation.truncate();
 
@@ -71,10 +76,12 @@ pub fn do_sprite_move_check(drag_points: Res<DragPoint>,
 }
 
 pub fn do_movement_input(keyboard_input: Res<Input<KeyCode>>,
+                         screen_mgr: Res<ScreenManager>,
                          move_active: Res<GameData>,
                          mut tunnel_pos: Query<(&mut Transform,
                                                 &mut KeyMover)>,
 ) {
+    if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
     if move_active.is_paused { return; }
 
     // TODO: for some reason, LControl not being picked up - is Linux eating it?

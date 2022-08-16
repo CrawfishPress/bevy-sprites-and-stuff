@@ -40,10 +40,13 @@ Not really used for anything yet, just experimenting.
 pub fn get_cursor_map_coords(
     windows: Res<Windows>,
     the_assets: Res<Assets<Image>>,
+    screen_mgr: Res<ScreenManager>,
     mut the_map: ResMut<BackgroundMapVisible>,
     my_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
     any_map: Query<(Entity, &Transform, &Handle<Image>), With<IsBackground>>,
 ) {
+    if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
+
     // get the camera info and transform
     // assuming there is exactly one main camera entity, so query::single() is OK
     let (camera, camera_transform) = my_camera.single();
@@ -76,9 +79,12 @@ pub fn get_cursor_map_coords(
 
 pub fn check_cursor_for_hover(
     windows: Res<Windows>,
+    screen_mgr: Res<ScreenManager>,
     my_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
     mut any_hovercraft: Query<(Entity, &mut IsMousing, &Transform, )>,
 ) {
+    if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
+
     // get the camera info and transform
     // assuming there is exactly one main camera entity, so query::single() is OK
     let (camera, camera_transform) = my_camera.single();
@@ -99,10 +105,13 @@ pub fn check_cursor_for_hover(
 }
 
 pub fn apply_any_hovers(mut materials: ResMut<Assets<ColorMaterial>>,
+                        screen_mgr: Res<ScreenManager>,
                         mut any_hovercraft: Query<(Entity, &IsMousing, &mut Transform,
                                                   AnyOf<(&mut TextureAtlasSprite, &Handle<ColorMaterial>)>,
                         )>,
 ) {
+    if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
+
     for (_entity_id, hovering, mut some_sprite_pos, some_object) in any_hovercraft.iter_mut() {
         if hovering.is_hovering {
             some_sprite_pos.scale.x = 1.2;
@@ -145,10 +154,13 @@ check_cursor_for_drag(): when the LMB is pressed, does:
 pub fn check_cursor_for_drag(
     windows: Res<Windows>,
     mouse_button_input: Res<Input<MouseButton>>,
+    screen_mgr: Res<ScreenManager>,
     mut drag_points: ResMut<DragPoint>,
     my_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
     mut any_hovercraft: Query<(Entity, &HoverCraft, &mut IsMousing, &mut Transform)>,
 ) {
+    if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
+
     if mouse_button_input.just_released(MouseButton::Left) {
         // println!("*** LMB was just released! Clear all Hovercraft!");
         for (_, _, mut mouse_action, _) in  any_hovercraft.iter_mut() {
