@@ -33,7 +33,7 @@ pub fn add_background(commands: &mut Commands, asset_server: &Res<AssetServer>, 
     let background_string = &*some_bitmap.to_string();
     commands  // Background Map
         .spawn_bundle(SpriteBundle {
-            transform: Transform::from_xyz(0.0, 0.0, 0.0),
+            transform: Transform::from_xyz(-25.0, -40.0, 0.0),
             texture: asset_server.load(background_string),
             ..default()
         })

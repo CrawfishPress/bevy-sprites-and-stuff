@@ -6,12 +6,13 @@ https://docs.rs/egui/latest/egui/
 use bevy::prelude::*;
 use bevy_egui::*;
 use egui::*;
-use crate::{GuiData, GameData, BackgroundMap};
+use crate::{GuiData, GameData, BackgroundMap, ScreenManager, CurScreen};
 
 pub fn do_ui_setup(the_map: Res<BackgroundMap>,
                    mut egui_context: ResMut<EguiContext>,
                    mut random_data: ResMut<GuiData>,
                    mut move_active: ResMut<GameData>,
+                   mut screen_mgr: ResMut<ScreenManager>,
 ) {
     let my_style_frame = containers::Frame {
         outer_margin: Default::default(),
@@ -23,9 +24,6 @@ pub fn do_ui_setup(the_map: Res<BackgroundMap>,
         // stroke: egui::Stroke::new(2.0, Color32::BLACK),  // Border
         stroke: Default::default(),
     };
-
-    let intro_text = RichText::new("Mouse-drag the starfish/hexagon, and arrow-keys move the rectangle")
-        .color(Color32::WHITE).font(FontId::proportional(20.0));
 
     let pause_string: String;
     if move_active.is_paused {
@@ -45,6 +43,14 @@ pub fn do_ui_setup(the_map: Res<BackgroundMap>,
     let coords_txt = RichText::new(coords_string)
         .color(Color32::BLACK).background_color(Color32::GRAY).font(FontId::proportional(20.0)).size(25.0);
 
+    let tab_load_screen_txt = RichText::new("Loading Screen")
+        .color(Color32::WHITE).background_color(Color32::BLUE).font(FontId::proportional(20.0)).size(15.0);
+    let tab_action_screen_txt = RichText::new("Action Screen")
+        .color(Color32::WHITE).background_color(Color32::BLUE).font(FontId::proportional(20.0)).size(25.0);
+
+    let intro_text = RichText::new("Mouse-drag the starfish/hexagon, and arrow-keys move the rectangle")
+        .color(Color32::WHITE).font(FontId::proportional(20.0));
+
     let reset_btn_txt = RichText::new("Reset Things")
         .color(Color32::WHITE).background_color(Color32::BLACK).font(FontId::proportional(20.0)).size(25.0);
 
@@ -57,21 +63,21 @@ pub fn do_ui_setup(the_map: Res<BackgroundMap>,
         .show(egui_context.ctx_mut(), |ui| {
             ui.style_mut().spacing.item_spacing = egui::Vec2 {x: 30.0, y: 0.0};
 
-            // Tab-panel
-            let tab_load_screen = RichText::new("Loading Screen")
-                .color(Color32::WHITE).background_color(Color32::BLUE).font(FontId::proportional(20.0)).size(25.0);
-            let tab_action_screen = RichText::new("Action Screen")
-                .color(Color32::WHITE).background_color(Color32::BLUE).font(FontId::proportional(20.0)).size(25.0);
+            // Screen-manager tabs
             ui.horizontal(|ui| {
-                if ui.button(tab_load_screen).clicked() {
-                    // move_active.game_status = move_active.game_status.cycle();
+                // ui.style_mut().visuals.window_shadow;
+                let some_button = egui::Button::new(tab_load_screen_txt);
+                if ui.add(some_button).clicked() {
+//                if ui.button(tab_load_screen_txt).clicked() {
+                    screen_mgr.current_screen = CurScreen::LoadScreen;
                 }
-                if ui.button(tab_action_screen).clicked() {
-                    // move_active.is_paused = !move_active.is_paused;
+                if ui.button(tab_action_screen_txt).clicked() {
+                    screen_mgr.current_screen = CurScreen::ActionScreen;
                 }
                 ui.label(wasm_browser_txt);
             });
 
+            // Buttons, Pause/Reset
             ui.horizontal(|ui| {
                 if ui.button(reset_btn_txt).clicked() {
                     move_active.game_status = move_active.game_status.cycle();
@@ -82,8 +88,8 @@ pub fn do_ui_setup(the_map: Res<BackgroundMap>,
                 }
             });
 
+            // Assorted Information
             ui.horizontal(|ui| {
-                // ui.heading("This is a Header (Label) that does nothing useful");
                 ui.add_sized([200.0, 40.0], Label::new(coords_txt));
                 ui.add_sized([420.0, 40.0], Label::new(intro_text));
             });

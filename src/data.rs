@@ -22,6 +22,19 @@ pub struct GuiData {
     pub my_other_value: f64,
 }
 
+// Game-level States
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum CurScreen {
+    LoadScreen,
+    ActionScreen,
+}
+
+// Resource pretending to be a Screen manager
+pub struct ScreenManager {
+    pub current_screen: CurScreen,
+}
+
 // Background stuff
 
 // Example of creating an Enum that maps to Strings (but *not* str)

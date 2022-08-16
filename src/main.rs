@@ -37,6 +37,7 @@ fn main() {
         .insert_resource(ClearColor(BACKGROUND))
         // .insert_resource(WinitSettings::game()) // Hmmm...
         .insert_resource(GuiData::default())
+        .insert_resource(ScreenManager { current_screen: CurScreen::LoadScreen })
         .add_plugins(DefaultPlugins)
         .add_plugin(EguiPlugin)
 
@@ -57,6 +58,7 @@ fn main() {
         .add_system(do_background_swap)
         .add_system(check_cursor_for_drag)
         .add_system(check_cursor_for_hover)
+        .add_system(apply_any_hovers)
         .add_system(get_cursor_map_coords)
         .run();
     println!("this is a test of the Bevy Engine - alas, this line is never reached, due to a bug");

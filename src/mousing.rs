@@ -8,12 +8,21 @@ like a border, say. But the two sprites have different bitmaps - one is
 a SpriteAtlas, another is a MaterialsMesh - so that will require some research.
 Currently, it looks like only things with a Material assigned, have a Color-Handle,
 where Color has Alpha. So Sprites/SpriteSheetBundles, so far, don't look alpha-modifiable.
+
+After much research - it is possible to set the Color.Alpha on all kinds of objects,
+but getting access to the Color is different for each object type.
+So function check_cursor_for_hover(), has an AnyOf() parameter, that gets at least one of the
+objects - which then has to be matched/unpacked differently for each object.
+
+That's a lot of work just to set the transparency on things, but so it goes...
+
 */
 
 // use bevy::asset::Asset;
 use bevy::prelude::*;
 use bevy::render::camera::Camera;
 use bevy::render::camera;
+// use bevy::sprite::{MaterialMesh2dBundle, Material2d};
 use crate::{BackgroundMap, DragPoint, HoverCraft, IsBackground, IsMousing};
 
 // fn print_type_of<T>(_: &T) {print!("{}", std::any::type_name::<T>())} // Unstable.
@@ -22,16 +31,6 @@ use crate::{BackgroundMap, DragPoint, HoverCraft, IsBackground, IsMousing};
 #[derive(Component)]
 pub struct MainCamera;
 
-
-//pub fn check_colors(  // Well, that could have gone better...
-//    mut materials: ResMut<Assets<ColorMaterial>>,
-//    mut some_colors: Query<(Entity, &Handle<ColorMaterial>, &mut Transform,)>,
-//) {
-//    for (entity_id, color_handle, some_pos) in some_colors.iter_mut() {
-//        let color = &mut materials.get_mut(color_handle).unwrap().color;
-//        println!("entity[{:?}]: color: {:?}, pos: {:?}", entity_id, color, some_pos.translation);
-//    }
-//}
 
 /*
 Will get mouse-coordinates, relative to map bottom-left corner.
@@ -43,7 +42,7 @@ pub fn get_cursor_map_coords(
     the_assets: Res<Assets<Image>>,
     mut the_map: ResMut<BackgroundMap>,
     my_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
-    any_map: Query<(Entity, &Handle<Image>), With<IsBackground>>,
+    any_map: Query<(Entity, &Transform, &Handle<Image>), With<IsBackground>>,
 ) {
     // get the camera info and transform
     // assuming there is exactly one main camera entity, so query::single() is OK
@@ -53,13 +52,14 @@ pub fn get_cursor_map_coords(
     if maybe_camera_pos.is_none() { return; }
     let camera_pos = maybe_camera_pos.unwrap();
 
-    let (_entity_id, image_handle) = any_map.get_single().unwrap();  // Gosh, I sure hope there's only one map.
+    let (_entity_id, map_pos, image_handle) = any_map.get_single().unwrap();  // Gosh, I sure hope there's only one map.
     let maybe_map_image = the_assets.get(image_handle);
     if maybe_map_image.is_none() {println!("wups - no map?"); return; }
     let map_image = maybe_map_image.unwrap().size();
 
-    let map_offset_x = - map_image.x / 2.0;
-    let map_offset_y = - map_image.y / 2.0;
+    let map_offset_x = - (map_image.x / 2.0 - map_pos.translation.x);
+    let map_offset_y = - (map_image.y / 2.0 - map_pos.translation.y);
+
     let rel_map_pos = Vec2 { x: camera_pos.x - map_offset_x, y: camera_pos.y - map_offset_y };
         if (rel_map_pos.x >= 0.0) && (rel_map_pos.x <= map_image.x) &&
            (rel_map_pos.y >= 0.0) && (rel_map_pos.y <= map_image.y)
@@ -77,7 +77,7 @@ pub fn get_cursor_map_coords(
 pub fn check_cursor_for_hover(
     windows: Res<Windows>,
     my_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
-    mut any_hovercraft: Query<(Entity, &mut IsMousing, &mut Transform,)>,
+    mut any_hovercraft: Query<(Entity, &mut IsMousing, &Transform, )>,
 ) {
     // get the camera info and transform
     // assuming there is exactly one main camera entity, so query::single() is OK
@@ -85,20 +85,49 @@ pub fn check_cursor_for_hover(
     let some_window = windows.get_primary().unwrap();  // Here's hoping there's always a window...
     let maybe_camera_pos = parse_camera_loc(camera, camera_transform, some_window);
     if maybe_camera_pos.is_none() { return; }
-
     let camera_pos = maybe_camera_pos.unwrap();
-    for (_entity_id, mut hovering, mut some_sprite_pos) in any_hovercraft.iter_mut() {
+
+    for (_entity_id, mut hovering, some_sprite_pos) in any_hovercraft.iter_mut() {
         if check_mouse_over_sprite(&some_sprite_pos, camera_pos) == true
         {
             hovering.is_hovering = true;
-            // println!("Entity: {:?}, scale: {:?}", entity_id, some_sprite_pos.scale);
-            some_sprite_pos.scale.x = 1.2;
-            some_sprite_pos.scale.y = 1.2;
         }
         else {
             hovering.is_hovering = false;
+        }
+    }
+}
+
+pub fn apply_any_hovers(mut materials: ResMut<Assets<ColorMaterial>>,
+                        mut any_hovercraft: Query<(Entity, &IsMousing, &mut Transform,
+                                                  AnyOf<(&mut TextureAtlasSprite, &Handle<ColorMaterial>)>,
+                        )>,
+) {
+    for (_entity_id, hovering, mut some_sprite_pos, some_object) in any_hovercraft.iter_mut() {
+        if hovering.is_hovering {
+            some_sprite_pos.scale.x = 1.2;
+            some_sprite_pos.scale.y = 1.2;
+            if some_object.0.is_some() {
+                let some_color = &mut some_object.0.unwrap().color;
+                some_color.set_a(0.5);
+            }
+            if some_object.1.is_some() {
+                let some_handle = some_object.1.unwrap();
+                let some_color = &mut materials.get_mut(some_handle).unwrap().color;
+                some_color.set_a(0.5);
+            }
+        } else {
             some_sprite_pos.scale.x = 1.0;
             some_sprite_pos.scale.y = 1.0;
+            if some_object.0.is_some() {
+                let some_color = &mut some_object.0.unwrap().color;
+                some_color.set_a(1.0);
+            }
+            if some_object.1.is_some() {
+                let some_handle = some_object.1.unwrap();
+                let some_color = &mut materials.get_mut(some_handle).unwrap().color;
+                some_color.set_a(1.0);
+            }
         }
     }
 }
