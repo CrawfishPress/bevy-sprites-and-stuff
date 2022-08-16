@@ -25,7 +25,7 @@ and despawn/respawn the Bitmap Sprites to handle it.
 
 use bevy::{prelude::*};
 use bevy::ecs::prelude::{Commands, Res};
-use crate::{BackgroundMapVisible, IsBackground, BackgroundBitmaps, GameData, CurScreen, ScreenManager};
+use crate::*;
 
 
 pub fn do_background_swap_action(keyboard_input: Res<Input<KeyCode>>,

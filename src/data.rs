@@ -2,6 +2,9 @@
 I've just moved Resource/Enum/Structs here, too, still haven't decided if
 this is a good idea, or not.
 
+ActionState: note that two of the three States are meant to be transient:
+any state other than Running, will do some setup and move to another State.
+
 BackgroundAction.toggle():
 Added a cycler-function (see lessons.md), so I don't have to say things like:
     if map1, set target to map2 else set target to map1...
@@ -146,7 +149,7 @@ pub struct GameData {
 impl Default for GameData {
     fn default() -> Self {
         GameData {
-            action_status: ActionState::Running,
+            action_status: ActionState::OffScreen,
             is_paused: true,
         }
     }
@@ -155,16 +158,20 @@ impl Default for GameData {
 // Cycled by a GUI Reset button
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ActionState {
+    OffScreen,
+    Loading,
     Running,
-    Reset,
+    Resetting,
 }
 
 // Adding a cycler-function to simplify changing states
 impl ActionState {
     pub fn cycle(&self) -> Self {
         match *self {
-            ActionState::Running => ActionState::Reset,
-            ActionState::Reset => ActionState::Running,
+            ActionState::OffScreen => ActionState::OffScreen,
+            ActionState::Loading => ActionState::Loading,
+            ActionState::Running => ActionState::Resetting,
+            ActionState::Resetting => ActionState::Running,
         }
     }
 }
@@ -179,3 +186,6 @@ pub enum CurScreen {
     LoadScreen,
     ActionScreen,
 }
+
+#[derive(Component)]
+pub struct IsActionScreen;

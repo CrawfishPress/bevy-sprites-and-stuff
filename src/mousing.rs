@@ -23,7 +23,7 @@ use bevy::prelude::*;
 use bevy::render::camera::Camera;
 use bevy::render::camera;
 // use bevy::sprite::{MaterialMesh2dBundle, Material2d};
-use crate::{BackgroundMapVisible, DragPoint, HoverCraft, IsBackground, IsMousing};
+use crate::*;
 
 // fn print_type_of<T>(_: &T) {print!("{}", std::any::type_name::<T>())} // Unstable.
 
