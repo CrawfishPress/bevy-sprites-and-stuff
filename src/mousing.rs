@@ -18,11 +18,9 @@ That's a lot of work just to set the transparency on things, but so it goes...
 
 */
 
-// use bevy::asset::Asset;
 use bevy::prelude::*;
 use bevy::render::camera::Camera;
 use bevy::render::camera;
-// use bevy::sprite::{MaterialMesh2dBundle, Material2d};
 use crate::*;
 
 // fn print_type_of<T>(_: &T) {print!("{}", std::any::type_name::<T>())} // Unstable.
@@ -57,6 +55,7 @@ pub fn get_cursor_map_coords(
 
     let (_entity_id, map_pos, image_handle) = any_map.get_single().unwrap();  // Gosh, I sure hope there's only one map.
     let maybe_map_image = the_assets.get(image_handle);
+    // TODO: refactor this section, so if no map, aren't even trying.
     if maybe_map_image.is_none() {println!("wups - no map?"); return; }
     let map_image = maybe_map_image.unwrap().size();
 

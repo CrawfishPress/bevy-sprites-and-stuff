@@ -5,7 +5,7 @@ basic techniques and concepts.
 
 #[allow(unused_imports)]
 use bevy::{prelude::*, window::WindowMode, sprite::MaterialMesh2dBundle, winit::WinitSettings};
-use bevy::ecs::prelude::{Commands, Res};
+use bevy::ecs::prelude::Commands;
 #[allow(unused_imports)]
 use bevy_egui::{egui, EguiContext, EguiPlugin};
 
@@ -59,14 +59,11 @@ fn main() {
 
         .add_system(do_remove_sprites_action)
         .add_system(do_add_sprites_action)
-
-        //.add_startup_system(setup_movers)
-        //.add_system(reset_movers)
+        .add_system(do_reset_movers_action)
 
         .add_system(do_sprite_auto_move)
         .add_system(do_sprite_move_check)
         .add_system(do_movement_input)
-
         .add_system(check_cursor_for_drag)
         .add_system(check_cursor_for_hover)
         .add_system(apply_any_hovers)

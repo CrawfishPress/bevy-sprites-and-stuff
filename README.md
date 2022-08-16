@@ -18,6 +18,7 @@ basic techniques and concepts. Such as...
      - a Button, that actually does something in-game
      - a Slider, that... slides...
      - a Reset button, with associated game-logic
+ - added simple Screen-Manager, for level-changing
  - assorted ECS concepts
  - assorted Query usage
  - assorted Rust concepts

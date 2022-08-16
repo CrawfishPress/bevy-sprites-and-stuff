@@ -82,14 +82,14 @@ pub fn do_ui_setup(the_map: Res<BackgroundMapVisible>,
                     // Checking existing Screen, to avoid changing it, and firing an is_changed()
                     if screen_mgr.current_screen != CurScreen::LoadScreen {
                         screen_mgr.current_screen = CurScreen::LoadScreen;
-                        println!("\nGUI: new screen: {:?}\n", screen_mgr.current_screen)
+                        // println!("\nGUI: new screen: {:?}\n", screen_mgr.current_screen)
                     }
                 }
                 let action_some_button = egui::Button::new(tab_action_screen_txt);
                 if ui.add(action_some_button).clicked() {
                     if screen_mgr.current_screen != CurScreen::ActionScreen {
                         screen_mgr.current_screen = CurScreen::ActionScreen;
-                        println!("\nGUI: new screen: {:?}\n", screen_mgr.current_screen)
+                        // println!("\nGUI: new screen: {:?}\n", screen_mgr.current_screen)
                     }
                 }
                 ui.label(wasm_browser_txt);
@@ -101,7 +101,7 @@ pub fn do_ui_setup(the_map: Res<BackgroundMapVisible>,
                 ui.horizontal(|ui| {
                     if ui.button(reset_btn_txt).clicked() {
                         game_status.action_status = game_status.action_status.cycle();
-                        println!("\nGUI: new state: {:?}\n", game_status.action_status)
+                        // println!("\nGUI: new state: {:?}\n", game_status.action_status)
                     }
                     if ui.button(pause_btn_txt).clicked() {
                         random_data.my_value += 1;
