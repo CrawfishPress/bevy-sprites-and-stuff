@@ -32,8 +32,8 @@ fn main() {
                            env!("CARGO_PKG_NAME"),
                            env!("CARGO_PKG_VERSION")
             ),
-            width: WIDTH,
-            height: HEIGHT,
+            width: SCREEN_WIDTH,
+            height: SCREEN_HEIGHT,
             mode: WindowMode::Windowed,
             resizable: false,
             ..default()

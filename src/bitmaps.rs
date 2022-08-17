@@ -56,7 +56,7 @@ pub fn do_update_background(mut commands: Commands,
     let background_string = &*background_mgr.cur_map.to_string();
     commands
         .spawn_bundle(SpriteBundle {
-            transform: Transform::from_xyz(-25.0, -40.0, 0.0),
+            transform: Transform::from_xyz(-20.0, -45.0, 0.0),
             texture: asset_server.load(background_string),
             ..default()
         })
