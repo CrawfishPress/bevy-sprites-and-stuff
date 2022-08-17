@@ -24,11 +24,19 @@ use std::fmt;
 use std::fmt::Formatter;
 use bevy::prelude::*;
 
-pub const SCREEN_WIDTH: f32 = 1850.0;
+pub const SCREEN_WIDTH: f32 = 1820.0;
 pub const SCREEN_HEIGHT: f32 = 950.0;
 pub const BACKGROUND: Color = Color::rgb(0.50, 0.50, 1.0);
-//pub const BITMAP_WIDTH: f32 = 1800.0;
-//pub const BITMAP_HEIGHT: f32 = 850.0;
+
+pub const BITMAP_WIDTH: f32 = 1800.0;
+pub const BITMAP_HEIGHT: f32 = 790.0;
+
+pub const KLUDGE_X: f32 = -10.0; // Sigh...
+pub const KLUDGE_Y: f32 = 5.0;
+pub const BITMAP_OFFSET_X: f32 = ((SCREEN_WIDTH - BITMAP_WIDTH) / 2.0) + KLUDGE_X;
+pub const BITMAP_OFFSET_Y: f32 = - ((SCREEN_HEIGHT - BITMAP_HEIGHT) / 2.0) + KLUDGE_Y;
+
+pub const GUI_PANEL_HEIGHT: f32 = 130.0;
 
 pub const BLOCK_SIZE: f32 = 150.0;
 pub const PADDLE_COLOR: Color = Color::rgba(0.3, 0.1, 0.9, 0.9);

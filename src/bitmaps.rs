@@ -25,7 +25,8 @@ and despawn/respawn the Bitmap Sprites to handle it.
 
 use bevy::{prelude::*};
 use bevy::ecs::prelude::{Commands, Res};
-use bevy::sprite::Anchor;
+// use bevy::sprite::Anchor;
+
 use crate::*;
 
 
@@ -57,7 +58,7 @@ pub fn do_update_background(mut commands: Commands,
     let background_string = &*background_mgr.cur_map.to_string();
     commands
         .spawn_bundle(SpriteBundle {
-            transform: Transform::from_xyz(-20.0, -45.0, 0.0),
+            transform: Transform::from_xyz(BITMAP_OFFSET_X, BITMAP_OFFSET_Y, 0.0),
             texture: asset_server.load(background_string),
             //sprite: Sprite {
             //    anchor: Anchor::BottomLeft,

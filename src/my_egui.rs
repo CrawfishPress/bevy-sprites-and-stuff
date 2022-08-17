@@ -67,7 +67,7 @@ pub fn do_ui_setup(the_map: Res<BackgroundMapVisible>,
         .color(Color32::WHITE).font(FontId::proportional(40.0));
 
     // Finally, a displayable Widget - Top Panel
-    TopBottomPanel::top("top panel?").min_height(80.0)
+    TopBottomPanel::top("top panel?").min_height(GUI_PANEL_HEIGHT)
         .frame(my_style_frame)
         // .resizable(true)  // Only works if there's a resizable element inside?
         .show(egui_context.ctx_mut(), |ui| {
