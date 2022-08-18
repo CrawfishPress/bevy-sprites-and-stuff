@@ -1,3 +1,32 @@
+### Emulating a Tabbed-Panel and Screen-Manager
+
+I wanted something like Kivy's Tabbed-Panel
+ - https://kivy.org/doc/stable/api-kivy.uix.tabbedpanel.html
+
+and a Screen-manager to handle it. Using Egui, I've managed to have
+Buttons that kinda-sort act as a Tabbed-Panel. I really need to understand
+the library a lot better - that, or find another GUI-library. As for a
+Screen-Manager, I'm using custom States for that. Not using Bevy States,
+as they are likely to change in the next release - in fact, cheatbook
+recommends another library, `iyes-loopless`, but not interested in adding
+another library for what is fairly simple to do manually.
+
+So States are just an enum, and all the Systems related to a particular
+State will have code like:
+
+    if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
+
+Currently, the only States are LoadScreen and ActionScreen.
+
+Note: this means that all Systems are running all the time, with just a boolean-check
+at the start for early-exit. I don't know of any implications for the app - if I
+used the built-in States or Run-criteria, there's still be some kind of run-check, but
+one less function-call. Fairly sure a few extra function-calls, won't slow down the app.
+
+My only real concern is *readability* - I've tried to clarify which Systems are for the
+Action-Screen. Even though the Load-Screen doesn't do anything, it might someday, and
+there might be other Screens.
+
 ### Getting mouse/cursor-location
 
 https://bevy-cheatbook.github.io/cookbook/cursor2world.html#2d-games

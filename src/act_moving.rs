@@ -18,7 +18,7 @@ pub fn do_sprite_auto_move(drag_points: Res<DragPoint>,
                            screen_mgr: Res<ScreenManager>,
                            move_active: Res<GameData>,
                            mut sprite_query: Query<(&mut Transform,
-                                                &mut CrabDirection,)>,
+                                                    &mut CrabDirection,)>,
 ) {
     if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
     if move_active.is_paused { return; }  // Spacebar pauses movement
@@ -48,8 +48,8 @@ it's checking for being "close enough". I mean, those Sprites could be anywhere.
 pub fn do_sprite_move_check(drag_points: Res<DragPoint>,
                             screen_mgr: Res<ScreenManager>,
                             mut sprite_position: Query<(&Transform,
-                                                     &mut CrabDirection,
-                                                     Option<&mut TextureAtlasSprite>)>,
+                                                        &mut CrabDirection,
+                                                        Option<&mut TextureAtlasSprite>)>,
 ) {
     if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
 
@@ -78,8 +78,7 @@ pub fn do_sprite_move_check(drag_points: Res<DragPoint>,
 pub fn do_movement_input(keyboard_input: Res<Input<KeyCode>>,
                          screen_mgr: Res<ScreenManager>,
                          move_active: Res<GameData>,
-                         mut tunnel_pos: Query<(&mut Transform,
-                                                &mut KeyMover)>,
+                         mut tunnel_pos: Query<(&mut Transform, &mut KeyMover)>,
 ) {
     if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
     if move_active.is_paused { return; }

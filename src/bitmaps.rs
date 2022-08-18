@@ -23,16 +23,13 @@ And it's up to some other System, to be aware that BackgroundMap Resource has ch
 and despawn/respawn the Bitmap Sprites to handle it.
 */
 
-use bevy::{prelude::*};
-use bevy::ecs::prelude::{Commands, Res};
+use bevy::prelude::*;
 // use bevy::sprite::Anchor;
-
 use crate::*;
 
-
-pub fn do_background_swap_action(keyboard_input: Res<Input<KeyCode>>,
-                                 screen_mgr: Res<ScreenManager>,
-                                 mut background_mgr: ResMut<BackgroundMapVisible>,
+pub fn do_background_swap(keyboard_input: Res<Input<KeyCode>>,
+                          screen_mgr: Res<ScreenManager>,
+                          mut background_mgr: ResMut<BackgroundMapVisible>,
 ) {
     if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
 

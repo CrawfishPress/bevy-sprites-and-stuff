@@ -23,25 +23,17 @@ use bevy::render::camera::Camera;
 use bevy::render::camera;
 use crate::*;
 
-// fn print_type_of<T>(_: &T) {print!("{}", std::any::type_name::<T>())} // Unstable.
-
-// Used to identify the main camera - granted, there's only one at the moment...
-#[derive(Component)]
-pub struct MainCamera;
-
-
 /*
 Will get mouse-coordinates, relative to map bottom-left corner.
 Assuming the Map is positioned at 0, 0 (center of map at center of screen)
 Not really used for anything yet, just experimenting.
 */
-pub fn get_cursor_map_coords(
-    windows: Res<Windows>,
-    the_assets: Res<Assets<Image>>,
-    screen_mgr: Res<ScreenManager>,
-    mut the_map: ResMut<BackgroundMapVisible>,
-    my_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
-    any_map: Query<(Entity, &Transform, &Handle<Image>), With<IsBackground>>,
+pub fn get_cursor_map_coords(windows: Res<Windows>,
+                             the_assets: Res<Assets<Image>>,
+                             screen_mgr: Res<ScreenManager>,
+                             mut the_map: ResMut<BackgroundMapVisible>,
+                             my_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+                             any_map: Query<(Entity, &Transform, &Handle<Image>), With<IsBackground>>,
 ) {
     if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
 
@@ -75,12 +67,10 @@ pub fn get_cursor_map_coords(
         }
 }
 
-
-pub fn check_cursor_for_hover(
-    windows: Res<Windows>,
-    screen_mgr: Res<ScreenManager>,
-    my_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
-    mut any_hovercraft: Query<(Entity, &mut IsMousing, &Transform, )>,
+pub fn check_cursor_for_hover(windows: Res<Windows>,
+                              screen_mgr: Res<ScreenManager>,
+                              my_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+                              mut any_hovercraft: Query<(Entity, &mut IsMousing, &Transform, )>,
 ) {
     if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
 
@@ -150,13 +140,12 @@ check_cursor_for_drag(): when the LMB is pressed, does:
    - while the mouse is moving, update the Sprite coordinates to follow the mouse
  - when LMB released, clears all Draggable Sprites
 */
-pub fn check_cursor_for_drag(
-    windows: Res<Windows>,
-    mouse_button_input: Res<Input<MouseButton>>,
-    screen_mgr: Res<ScreenManager>,
-    mut drag_points: ResMut<DragPoint>,
-    my_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
-    mut any_hovercraft: Query<(Entity, &HoverCraft, &mut IsMousing, &mut Transform)>,
+pub fn check_cursor_for_drag(windows: Res<Windows>,
+                             mouse_button_input: Res<Input<MouseButton>>,
+                             screen_mgr: Res<ScreenManager>,
+                             mut drag_points: ResMut<DragPoint>,
+                             my_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+                             mut any_hovercraft: Query<(Entity, &HoverCraft, &mut IsMousing, &mut Transform)>,
 ) {
     if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
 

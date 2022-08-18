@@ -15,9 +15,8 @@ basic techniques and concepts. Such as...
    - creates a TopPanel
    - creates a Frame, which modifies the panel's appearance
    - puts assorted Widgets into the TopPanel, including
-     - a Button, that actually does something in-game
-     - a Slider, that... slides...
-     - a Reset button, with associated game-logic
+     - Buttons for screen-changing (emulating a Tabbed-Panel, see lessons.md) 
+     - Buttons, for Pause/Reset
  - added simple Screen-Manager, for level-changing
  - assorted ECS concepts
  - assorted Query usage

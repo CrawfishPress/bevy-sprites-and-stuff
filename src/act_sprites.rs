@@ -1,12 +1,10 @@
 #[allow(unused_imports)]
 use bevy::{prelude::*, window::WindowMode, sprite::MaterialMesh2dBundle, winit::WinitSettings};
-use bevy::ecs::prelude::{Commands, Res};
-
 use crate::*;
 
-pub fn do_remove_sprites_action(mut commands: Commands,
-                                game_status: ResMut<GameData>,
-                                mut any_sprites: Query<Entity, With<IsActionScreen>>,
+pub fn do_remove_sprites(mut commands: Commands,
+                         game_status: ResMut<GameData>,
+                         mut any_sprites: Query<Entity, With<IsActionScreen>>,
 ) {
     if ! game_status.is_changed() { return; }
     if game_status.action_status != ActionState::OffScreen { return; }
@@ -24,13 +22,13 @@ pub fn do_remove_sprites_action(mut commands: Commands,
     // println!("Done removing sprites, State: {:?}", game_status.action_status);
 }
 
-pub fn do_add_sprites_action(mut commands: Commands,
-                             asset_server: Res<AssetServer>,
-                             screen_mgr: Res<ScreenManager>,
-                             mut game_status: ResMut<GameData>,
-                             mut meshes: ResMut<Assets<Mesh>>,
-                             mut materials: ResMut<Assets<ColorMaterial>>,
-                             texture_atlases: ResMut<Assets<TextureAtlas>>,
+pub fn do_add_sprites(mut commands: Commands,
+                      asset_server: Res<AssetServer>,
+                      screen_mgr: Res<ScreenManager>,
+                      mut game_status: ResMut<GameData>,
+                      mut meshes: ResMut<Assets<Mesh>>,
+                      mut materials: ResMut<Assets<ColorMaterial>>,
+                      texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     if screen_mgr.current_screen != CurScreen::ActionScreen { return; }
     if game_status.action_status != ActionState::Loading { return; }
@@ -63,6 +61,31 @@ pub fn do_add_sprites_action(mut commands: Commands,
     game_status.action_status = ActionState::Running;
     // println!("Done adding tunnel, pixel, State: Running\n");
 
+}
+
+pub fn do_reset_movers(mut commands: Commands,
+                       asset_server: Res<AssetServer>,
+                       meshes: ResMut<Assets<Mesh>>,
+                       materials: ResMut<Assets<ColorMaterial>>,
+                       texture_atlases: ResMut<Assets<TextureAtlas>>,
+                       mut move_active: ResMut<GameData>,
+                       mut movers_query: Query<Entity, With<OneMover>>,
+) {
+    if move_active.action_status != ActionState::Resetting { return; }
+
+    // Say goodby to all the Mover Sprites
+    for one_sprite_id in movers_query.iter_mut() {
+        // println!("\treset_movers, removing: {:?}", one_sprite_id);
+        commands.entity(one_sprite_id).despawn();
+    }
+
+    // Reset all the variables in DragPoint - by replacing it?
+    commands.remove_resource::<DragPoint>();
+    commands.insert_resource(DragPoint::default());
+
+    add_movers_action(commands, asset_server, meshes, materials, texture_atlases);
+
+    move_active.action_status = ActionState::Running;
 }
 
 fn add_movers_action(mut commands: Commands,
@@ -113,29 +136,4 @@ fn add_movers_action(mut commands: Commands,
         .insert(IsMousing { is_dragging: false, is_hovering: false })
         .insert(OneMover)
         .insert(IsActionScreen);
-}
-
-pub fn do_reset_movers_action(mut commands: Commands,
-                              asset_server: Res<AssetServer>,
-                              meshes: ResMut<Assets<Mesh>>,
-                              materials: ResMut<Assets<ColorMaterial>>,
-                              texture_atlases: ResMut<Assets<TextureAtlas>>,
-                              mut move_active: ResMut<GameData>,
-                              mut movers_query: Query<Entity, With<OneMover>>,
-) {
-    if move_active.action_status != ActionState::Resetting { return; }
-
-    // Say goodby to all the Mover Sprites
-    for one_sprite_id in movers_query.iter_mut() {
-        // println!("\treset_movers, removing: {:?}", one_sprite_id);
-        commands.entity(one_sprite_id).despawn();
-    }
-
-    // Reset all the variables in DragPoint - by replacing it?
-    commands.remove_resource::<DragPoint>();
-    commands.insert_resource(DragPoint::default());
-
-    add_movers_action(commands, asset_server, meshes, materials, texture_atlases);
-
-    move_active.action_status = ActionState::Running;
 }

@@ -96,6 +96,10 @@ pub struct IsMousing {
     pub is_hovering: bool,
 }
 
+// Used to identify the main camera - granted, there's only one at the moment...
+#[derive(Component)]
+pub struct MainCamera;
+
 // Screen Background stuff *********************************************
 
 // Example of creating an Enum that maps to Strings (but *not* str)
